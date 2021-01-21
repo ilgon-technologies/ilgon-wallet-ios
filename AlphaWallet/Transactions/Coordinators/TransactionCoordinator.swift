@@ -66,8 +66,8 @@ class TransactionCoordinator: Coordinator {
         return controller
     }
 
-    func showTransaction(_ transaction: Transaction) {
-        let controller = TransactionViewController(session: sessions[transaction.server], transaction: transaction, delegate: self)
+    func showTransaction(_ transactionRow: TransactionRow) {
+        let controller = TransactionViewController(session: sessions[transactionRow.server], transactionRow: transactionRow, delegate: self)
         controller.hidesBottomBarWhenPushed = true
         controller.navigationItem.largeTitleDisplayMode = .never
 
@@ -75,13 +75,9 @@ class TransactionCoordinator: Coordinator {
     }
 
     //TODO duplicate of method showTransaction(_:) to display in a specific UIViewController because we are now showing transactions from outside the transactions tab. Clean up
-    func showTransaction(_ transaction: Transaction, inViewController viewController: UIViewController) {
-        let session = sessions[transaction.server]
-        let controller = TransactionViewController(
-                session: session,
-                transaction: transaction,
-                delegate: self
-        )
+    func showTransaction(_ transactionRow: TransactionRow, inViewController viewController: UIViewController) {
+        let session = sessions[transactionRow.server]
+        let controller = TransactionViewController(session: session, transactionRow: transactionRow, delegate: self)
         let nav = UINavigationController(rootViewController: controller)
         controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: controller, action: #selector(dismiss))
         nav.makePresentationFullScreenForiOS13Migration()
@@ -92,7 +88,11 @@ class TransactionCoordinator: Coordinator {
         //Quite likely we should have the transaction already
         //TODO handle when we don't handle the transaction, so we must fetch it. There might not be a simple API call to just fetch a single transaction. Probably have to fetch all transactions in a single block with Etherscan?
         guard let transaction = transactionsCollection.transaction(withTransactionId: transactionId, server: server) else { return }
-        showTransaction(transaction, inViewController: viewController)
+        if transaction.localizedOperations.count > 1 {
+            showTransaction(.group(transaction), inViewController: viewController)
+        } else {
+            showTransaction(.standalone(transaction), inViewController: viewController)
+        }
     }
 
     @objc func didEnterForeground() {
@@ -113,8 +113,8 @@ class TransactionCoordinator: Coordinator {
 }
 
 extension TransactionCoordinator: TransactionsViewControllerDelegate {
-    func didPressTransaction(transaction: Transaction, in viewController: TransactionsViewController) {
-        showTransaction(transaction)
+    func didPressTransaction(transactionRow: TransactionRow, in viewController: TransactionsViewController) {
+        showTransaction(transactionRow)
     }
 }
 
