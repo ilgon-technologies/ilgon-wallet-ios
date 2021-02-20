@@ -36,6 +36,10 @@ class SwitchTableViewCell: UITableViewCell {
         get { return switchView.isOn }
         set { switchView.isOn = newValue }
     }
+    
+    func setSwitchAnimated(on: Bool) {
+        switchView.setOn(on, animated: true)
+    }
 
     weak var delegate: SwitchTableViewCellDelegate?
     
@@ -43,6 +47,8 @@ class SwitchTableViewCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
         switchView.addTarget(self, action: #selector(switchChanged(_:)), for: .valueChanged)
+        
+        contentView.backgroundColor = Colors.appBackground
         
         selectionStyle = .none
         accessoryType = .none

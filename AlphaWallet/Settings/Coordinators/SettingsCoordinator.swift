@@ -4,20 +4,15 @@
 import Foundation
 import UIKit
 
-enum RestartReason {
-    case walletChange
-    case changeLocalization
-    case serverChange
-}
-
 protocol SettingsCoordinatorDelegate: class, CanOpenURL {
-    func didRestart(with account: Wallet, in coordinator: SettingsCoordinator, reason: RestartReason)
+	func didRestart(with account: Wallet, in coordinator: SettingsCoordinator)
 	func didUpdateAccounts(in coordinator: SettingsCoordinator)
 	func didCancel(in coordinator: SettingsCoordinator)
 	func didPressShowWallet(in coordinator: SettingsCoordinator)
 	func assetDefinitionsOverrideViewController(for: SettingsCoordinator) -> UIViewController?
 	func consoleViewController(for: SettingsCoordinator) -> UIViewController?
 	func delete(account: Wallet, in coordinator: SettingsCoordinator)
+    func didPressWalletConnect(in coordinator: SettingsCoordinator)
 }
 
 class SettingsCoordinator: Coordinator {
@@ -50,12 +45,12 @@ class SettingsCoordinator: Coordinator {
     }()
 
 	init(
-        navigationController: UINavigationController = UINavigationController(),
-        keystore: Keystore,
-        config: Config,
-        sessions: ServerDictionary<WalletSession>,
-        promptBackupCoordinator: PromptBackupCoordinator,
-        analyticsCoordinator: AnalyticsCoordinator?
+			navigationController: UINavigationController = UINavigationController(),
+			keystore: Keystore,
+			config: Config,
+			sessions: ServerDictionary<WalletSession>,
+			promptBackupCoordinator: PromptBackupCoordinator,
+			analyticsCoordinator: AnalyticsCoordinator?
 	) {
 		self.navigationController = navigationController
 		self.navigationController.modalPresentationStyle = .formSheet
@@ -64,7 +59,6 @@ class SettingsCoordinator: Coordinator {
 		self.sessions = sessions
         self.promptBackupCoordinator = promptBackupCoordinator
 		self.analyticsCoordinator = analyticsCoordinator
-
 		promptBackupCoordinator.subtlePromptDelegate = self
 	}
 
@@ -72,8 +66,8 @@ class SettingsCoordinator: Coordinator {
 		navigationController.viewControllers = [rootViewController]
 	}
 
-    func restart(for wallet: Wallet, reason: RestartReason) {
-		delegate?.didRestart(with: wallet, in: self, reason: reason)
+	func restart(for wallet: Wallet) {
+		delegate?.didRestart(with: wallet, in: self)
 	}
 }
 
@@ -82,6 +76,19 @@ extension SettingsCoordinator: SupportViewControllerDelegate {
 }
 
 extension SettingsCoordinator: SettingsViewControllerDelegate {
+    
+    func settingsViewControllerChangeLanguageSelected(in controller: SettingsViewController) {
+        let coordinator = LocalesCoordinator()
+        coordinator.delegate = self
+        coordinator.start()
+        addCoordinator(coordinator)
+        coordinator.localesViewController.navigationItem.largeTitleDisplayMode = .never
+        navigationController.pushViewController(coordinator.localesViewController, animated: true)
+    }
+    
+    func settingsViewControllerWalletConnectSelected(in controller: SettingsViewController) {
+        delegate?.didPressWalletConnect(in: self)
+    }
 
     func settingsViewControllerHelpSelected(in controller: SettingsViewController) {
         let viewController = SupportViewController()
@@ -176,7 +183,7 @@ extension SettingsCoordinator: AccountsCoordinatorDelegate {
 	func didSelectAccount(account: Wallet, in coordinator: AccountsCoordinator) {
         coordinator.navigationController.popViewController(animated: true)
 		removeCoordinator(coordinator)
-        restart(for: account, reason: .walletChange)
+		restart(for: account)
 	}
 }
 
@@ -184,7 +191,7 @@ extension SettingsCoordinator: LocalesCoordinatorDelegate {
     func didSelect(locale: AppLocale, in coordinator: LocalesCoordinator) {
 		coordinator.localesViewController.navigationController?.popViewController(animated: true)
 		removeCoordinator(coordinator)
-        restart(for: account, reason: .changeLocalization)
+		restart(for: account)
 	}
 }
 
@@ -199,7 +206,7 @@ extension SettingsCoordinator: EnabledServersCoordinatorDelegate {
 			removeCoordinator(coordinator)
 		} else {
 			config.enabledServers = servers
-            restart(for: account, reason: .serverChange)
+			restart(for: account)
 		}
 	}
 

@@ -20,10 +20,10 @@ struct TransactionConfiguration {
         self.hasUserAdjustedGasLimit = hasUserAdjustedGasLimit
     }
 
-    mutating func setEstimated(gasPrice estimate: BigInt) {
-        guard !hasUserAdjustedGasPrice else { return }
-        gasPrice = estimate
-    }
+    //mutating func setEstimated(gasPrice estimate: BigInt) {
+    //    guard !hasUserAdjustedGasPrice else { return }
+    //    gasPrice = estimate
+    //}
 
     mutating func setEstimated(gasLimit estimate: BigInt) {
         guard !hasUserAdjustedGasLimit else { return }
@@ -44,27 +44,27 @@ struct TransactionConfiguration {
 }
 
 enum TransactionConfigurationType: Int, CaseIterable {
-    case slow
+    //case slow
     case standard
-    case fast
-    case rapid
+    //case fast
+    //case rapid
     case custom
 
     static var sortedThirdPartyFastestFirst: [TransactionConfigurationType] {
         //We intentionally do not include `.standard`
-        [.rapid, .fast, .slow]
+        [] //[.rapid, .fast, .slow]
     }
 
     var title: String {
         switch self {
         case .standard:
             return R.string.localizable.transactionConfigurationTypeAverage()
-        case .slow:
-            return R.string.localizable.transactionConfigurationTypeSlow()
-        case .fast:
-            return R.string.localizable.transactionConfigurationTypeFast()
-        case .rapid:
-            return R.string.localizable.transactionConfigurationTypeRapid()
+        //case .slow:
+        //    return R.string.localizable.transactionConfigurationTypeSlow()
+        //case .fast:
+        //    return R.string.localizable.transactionConfigurationTypeFast()
+        //case .rapid:
+        //    return R.string.localizable.transactionConfigurationTypeRapid()
         case .custom:
             return R.string.localizable.transactionConfigurationTypeCustom()
         }
@@ -74,12 +74,12 @@ enum TransactionConfigurationType: Int, CaseIterable {
         switch self {
         case .standard:
             return R.string.localizable.transactionConfigurationTypeAverageTime()
-        case .slow:
-            return R.string.localizable.transactionConfigurationTypeSlowTime()
-        case .fast:
-            return R.string.localizable.transactionConfigurationTypeFastTime()
-        case .rapid:
-            return R.string.localizable.transactionConfigurationTypeRapidTime()
+        //case .slow:
+        //    return R.string.localizable.transactionConfigurationTypeSlowTime()
+        //case .fast:
+        //    return R.string.localizable.transactionConfigurationTypeFastTime()
+        //case .rapid:
+        //    return R.string.localizable.transactionConfigurationTypeRapidTime()
         case .custom:
             return ""
         }

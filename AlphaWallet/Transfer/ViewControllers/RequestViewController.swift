@@ -24,6 +24,14 @@ class RequestViewController: UIViewController {
 		label.text = viewModel.instructionText
 		return label
 	}()
+    
+    private lazy var walletNameLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = viewModel.walletNameColor
+        label.font = viewModel.walletNameFont
+        label.adjustsFontSizeToFitWidth = true
+        return label
+    }()
 
 	private lazy var imageView: UIImageView = {
 		let imageView = UIImageView()
@@ -102,13 +110,25 @@ class RequestViewController: UIViewController {
 
 		scrollView.translatesAutoresizingMaskIntoConstraints = false
 		roundedBackground.addSubview(scrollView)
-
-		let stackView = [
-			.spacer(height: ScreenChecker().isNarrowScreen ? 20 : 30),
-			instructionLabel,
-			.spacer(height: ScreenChecker().isNarrowScreen ? 20 : 50),
-			imageView,
-		].asStackView(axis: .vertical, alignment: .center)
+        let stackView: UIStackView
+        if let walletName = viewModel.walletName {
+            walletNameLabel.text = walletName
+            stackView = [
+                .spacer(height: ScreenChecker().isNarrowScreen ? 10 : 15),
+                walletNameLabel,
+                .spacer(height: ScreenChecker().isNarrowScreen ? 10 : 15),
+                instructionLabel,
+                .spacer(height: ScreenChecker().isNarrowScreen ? 20 : 50),
+                imageView,
+            ].asStackView(axis: .vertical, alignment: .center)
+        } else {
+            stackView = [
+                .spacer(height: ScreenChecker().isNarrowScreen ? 20 : 30),
+                instructionLabel,
+                .spacer(height: ScreenChecker().isNarrowScreen ? 20 : 50),
+                imageView,
+            ].asStackView(axis: .vertical, alignment: .center)
+        }
 		stackView.translatesAutoresizingMaskIntoConstraints = false
 		scrollView.addSubview(stackView)
 
@@ -164,9 +184,11 @@ class RequestViewController: UIViewController {
 	}
 
 	private func configure() {
-		copyEnsButton.setImage(R.image.copy(), for: .normal)
+        copyEnsButton.setImage(R.image.copy()?.withRenderingMode(.alwaysTemplate), for: .normal)
+        copyEnsButton.tintColor = Colors.ilgoinButtonPrimaryColor
 
-		copyAddressButton.setImage(R.image.copy(), for: .normal)
+        copyAddressButton.setImage(R.image.copy()?.withRenderingMode(.alwaysTemplate), for: .normal)
+        copyAddressButton.tintColor = Colors.ilgoinButtonPrimaryColor
 
 		resolveEns()
 	}
@@ -229,8 +251,8 @@ class RequestViewController: UIViewController {
 	}
 
 	private func showFeedback() {
-		UINotificationFeedbackGenerator.show(feedbackType: .success)
-	}
+        UINotificationFeedbackGenerator.show(feedbackType: .success)
+    }
 
 	func generateQRCode(from string: String) -> UIImage? {
 		return string.toQRCode()

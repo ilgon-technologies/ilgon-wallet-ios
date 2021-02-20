@@ -79,13 +79,14 @@ open class Snapshot: NSObject {
             setLanguage(app)
             setLocale(app)
             setLaunchArguments(app)
-        } catch {
-
+        } catch let error {
+            print(error)
         }
     }
 
     class func setLanguage(_ app: XCUIApplication) {
         guard let cacheDirectory = self.cacheDirectory else {
+            print("CacheDirectory is not set - probably running on a physical device?")
             return
         }
         
@@ -96,12 +97,13 @@ open class Snapshot: NSObject {
             deviceLanguage = try String(contentsOf: path, encoding: .utf8).trimmingCharacters(in: trimCharacterSet)
             app.launchArguments += ["-AppleLanguages", "(\(deviceLanguage))"]
         } catch {
-
+            print("Couldn't detect/set language...")
         }
     }
 
     class func setLocale(_ app: XCUIApplication) {
         guard let cacheDirectory = self.cacheDirectory else {
+            print("CacheDirectory is not set - probably running on a physical device?")
             return
         }
         
@@ -111,7 +113,7 @@ open class Snapshot: NSObject {
             let trimCharacterSet = CharacterSet.whitespacesAndNewlines
             locale = try String(contentsOf: path, encoding: .utf8).trimmingCharacters(in: trimCharacterSet)
         } catch {
-
+            print("Couldn't detect/set locale...")
         }
         if locale.isEmpty {
             locale = Locale(identifier: deviceLanguage).identifier
@@ -121,6 +123,7 @@ open class Snapshot: NSObject {
 
     class func setLaunchArguments(_ app: XCUIApplication) {
         guard let cacheDirectory = self.cacheDirectory else {
+            print("CacheDirectory is not set - probably running on a physical device?")
             return
         }
         
@@ -136,7 +139,7 @@ open class Snapshot: NSObject {
             }
             app.launchArguments += results
         } catch {
-
+            print("Couldn't detect/set launch_arguments...")
         }
     }
 
@@ -145,6 +148,8 @@ open class Snapshot: NSObject {
             waitForLoadingIndicatorToDisappear(within: timeout)
         }
 
+        print("snapshot: \(name)") // more information about this, check out https://docs.fastlane.tools/actions/snapshot/#how-does-it-work
+
         sleep(1) // Waiting for the animation to be finished (kind of)
 
         #if os(OSX)
@@ -152,10 +157,12 @@ open class Snapshot: NSObject {
         #else
             
             guard let app = self.app else {
+                print("XCUIApplication is not set. Please call setupSnapshot(app) before snapshot().")
                 return
             }
             
             guard let window = app.windows.allElementsBoundByIndex.first(where: { $0.frame.isEmpty == false }) else {
+                print("Couldn't find an element window in XCUIApplication with a non-empty frame.")
                 return
             }
 
@@ -164,8 +171,9 @@ open class Snapshot: NSObject {
             let path = screenshotsDir.appendingPathComponent("\(simulator)-\(name).png")
             do {
                 try screenshot.pngRepresentation.write(to: path)
-            } catch {
-
+            } catch let error {
+                print("Problem writing screenshot: \(name) to \(path)")
+                print(error)
             }
         #endif
     }
@@ -207,7 +215,6 @@ open class Snapshot: NSObject {
                 throw SnapshotError.cannotRunOnPhysicalDevice
             #endif
         #endif
-        
         return homeDir.appendingPathComponent("Library/Caches/tools.fastlane")
     }
 }

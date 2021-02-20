@@ -13,6 +13,7 @@ struct EthTokenViewCellViewModel {
     private let server: RPCServer
     private let assetDefinitionStore: AssetDefinitionStore
     private let isVisible: Bool
+    private let address: String
     init(
         token: TokenObject,
         ticker: CoinTicker?,
@@ -20,8 +21,10 @@ struct EthTokenViewCellViewModel {
         currencyAmountWithoutSymbol: Double?,
         server: RPCServer,
         assetDefinitionStore: AssetDefinitionStore,
+        address: String,
         isVisible: Bool = true
     ) {
+        self.address = address
         self.token = token
         self.ticker = ticker
         self.currencyAmount = currencyAmount
@@ -37,6 +40,18 @@ struct EthTokenViewCellViewModel {
 
     var amount: String {
         return shortFormatter.string(from: BigInt(token.value) ?? BigInt(), decimals: token.decimals)
+    }
+    
+    var stakingBalance: String {
+        return "\(shortFormatter.string(from: BigInt(token.getStakingBalanceValue(address: address)) ?? BigInt(), decimals: token.decimals)) \(token.symbol.uppercased())"
+    }
+    
+    var showStakingBalance: Bool {
+        if let value = BigInt(token.getStakingBalanceValue(address: address)) {
+            return value > 0
+        } else {
+            return false
+        }
     }
 
     var backgroundColor: UIColor {

@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2912CCF41F6A830700C6CBE3"
-               BuildableName = "AlphaWallet.app"
+               BuildableName = "ILGON Wallet.app"
                BlueprintName = "AlphaWallet"
                ReferencedContainer = "container:AlphaWallet.xcodeproj">
             </BuildableReference>
@@ -28,16 +28,6 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "2912CD151F6A830700C6CBE3"
-               BuildableName = "AlphaWalletUITests.xctest"
-               BlueprintName = "AlphaWalletUITests"
-               ReferencedContainer = "container:AlphaWallet.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
@@ -55,7 +45,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2912CCF41F6A830700C6CBE3"
-            BuildableName = "AlphaWallet.app"
+            BuildableName = "ILGON Wallet.app"
             BlueprintName = "AlphaWallet"
             ReferencedContainer = "container:AlphaWallet.xcodeproj">
          </BuildableReference>
@@ -72,12 +62,6 @@
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>
-      <AdditionalOptions>
-      </AdditionalOptions>
-      <LocationScenarioReference
-         identifier = "com.apple.dt.IDEFoundation.CurrentLocationScenarioIdentifier"
-         referenceType = "1">
-      </LocationScenarioReference>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Debug"
@@ -90,7 +74,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2912CCF41F6A830700C6CBE3"
-            BuildableName = "AlphaWallet.app"
+            BuildableName = "ILGON Wallet.app"
             BlueprintName = "AlphaWallet"
             ReferencedContainer = "container:AlphaWallet.xcodeproj">
          </BuildableReference>

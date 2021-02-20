@@ -1,5 +1,5 @@
 "Advanced" = "Advanced";
-"app.device.jailbreak.description" = "Any 'jailbreak' app can access AlphaWallet's keychain data and steal your wallet! Wipe this wallet immediately and restore on a secure device.";
+"app.device.jailbreak.description" = "Any 'jailbreak' app can access ILGON Wallet's keychain data and steal your wallet! Wipe this wallet immediately and restore on a secure device.";
 "app.device.jailbreak.title" = "DEVICE SECURITY COMPROMISED";
 "Done" = "Done";
 "Cancel" = "Cancel";
@@ -19,6 +19,7 @@
 "configureTransaction.error.nonceNotPositiveNumber" = "Nonce must be a positive number";
 "configureTransaction.gasLimit.label.description" = "The gas limit prevents smart contracts from consuming all your %@. We will try to calculate the gas limit automatically for you, but some smart contracts may require a custom gas limit.";
 "configureTransaction.gasLimit.label.title" = "Gas Limit";
+"configureTransaction.gasPrice.label.description" = "The higher the gas price, the more expensive your transaction fee will be, but the quicker your tranasction will be processed by the %@ network.";
 "configureTransaction.totalNetworkFee.label.title" = "Total network fee";
 "transaction.confirmation.label.title" = "Confirmation";
 "transaction.from.label.title" = "From";
@@ -53,6 +54,7 @@
 "Refresh" = "Refresh";
 "request.addressCopied.title" = "Address copied";
 "request.copyWallet.button.title" = "Copy wallet address";
+"request.myAddressIs.label.title" = "My %1$@ address is: %2$@";
 "Retry" = "Retry";
 "Send" = "Send";
 "Receive" = "Receive";
@@ -127,7 +129,7 @@
 "transactions.received.ether" = "You have received %@ %@";
 "transactions.received.ether.notification.prompt" = "Allow Notifications When You Receive %@?";
 "transaction.navigation.title" = "Transaction";
-"activity.tabbar.item.title" = "Activity";
+"activity.tabbar.item.title" = "History";
 "import.navigation.title" = "Import Wallet";
 "configureTransaction.data.label.title" = "Transaction Data (Optional)";
 "configureTransaction.nonce.label.title" = "Nonce (Optional)";
@@ -144,7 +146,7 @@
 "importWallet.import.alertSheet.option.title" = "iCloud/Dropbox/Google Drive";
 "importWallet.import.alertSheet.title" = "Import Wallet Options";
 "importWallet.import.button.title" = "Import";
-"importWallet.import.invalidAddress" = "Invalid Ethereum Address";
+"importWallet.import.invalidAddress" = "Invalid ILGON Address";
 "importWallet.import.invalidPrivateKey" = "Private Key has to be 64 characters long";
 "importWallet.import.invalidMnemonicCount" = "Seed phrase has to be 12 words";
 "importWallet.import.invalidMnemonic" = "Seed phrase is invalid";
@@ -179,7 +181,7 @@
 "transaction.cell.tokenTransfer.title" = "Transfer %@";
 "Yesterday" = "Yesterday";
 "Deleting" = "Deleting";
-"Ethereum Address" = "Ethereum Address";
+"Ethereum Address" = "ILGON Address";
 "InCoordinatorError.onlyWatchAccount" = "This wallet could be only used for watching. Import Private Key/Keystore to sign transactions";
 "mnemonic.shorter" = "Seed";
 "mnemonic" = "Seed Phrase";
@@ -190,7 +192,7 @@
 "welldone.description.label.text" = "Help us grow by sharing this app with your friends!";
 "welldone.navigation.title" = "Thank you!";
 "welldone.share.label.text" = "Share";
-"welldone.viewmodel.sharing.text" = "Check out AlphaWallet - The first crypto mobile wallet which can interact with smart contracts to perform real-world use cases.";
+"welldone.viewmodel.sharing.text" = "Check out ILGON Wallet - The first crypto mobile wallet which can interact with smart contracts to perform real-world use cases.";
 "browser.home.button.title" = "Home";
 "browser.reload.button.title" = "Reload";
 "browser.addbookmark.button.title" = "Add to My Bookmarks";
@@ -306,13 +308,13 @@
 "a.help.assetDefinitionOverrides.title" = "TokenScript Overrides";
 "a.console.title" = "Console";
 "a.help.contact.footer.button.title" = "Still need help? Contact Us";
-"a.help.contact.email.subject" = "Help/Feedback for AlphaWallet";
+"a.help.contact.email.subject" = "Help/Feedback for ILGON Wallet";
 "a.help.contact.email.helpfulToDevelopers" = "Helpful information to developers:";
 "a.help.contact.email.iosVersion" = "iOS Version: %@";
 "a.help.contact.email.deviceModel" = "Device Model: %@";
 "a.help.contact.email.appVersion" = "App Version: %@";
 "a.help.contact.email.locale" = "Current locale: %@";
-"a.help.contents.whatIsETH" = "What is ETH/Ethereum?";
+"a.help.contents.whatIsETH" = "What is ETH/ILGON?";
 "a.help.contents.howDoIGetMyMoney" = "How do I get my money?";
 "a.help.contents.howDoITransferETHIntoMyWallet" = "How do I transfer ETH into my wallet?";
 "a.help.contents.privacyPolicy" = "Privacy Policy";
@@ -373,7 +375,7 @@
 "settings.preferences.title" = "Preferences";
 "Balance" = "Balance";
 "confirmSignMessage" = "Confirm signing this message:";
-"blockchain.ethereum" = "Ethereum Blockchain";
+"blockchain.ethereum" = "ILGON Blockchain";
 "touch.id" = "Touch ID";
 "face.id" = "Face ID";
 "undefined.error" = "Undefined error";
@@ -384,7 +386,7 @@
 "camera.qrCode.denied.prompt.message" = "Your privacy settings are preventing us from accessing your camera for QR code scanning. Fix this by:\n\n1. Tap the Open Settings button below to open the Settings app.\n\n2. Tap to enable the Camera on.\n\n3. Launch this app again.";
 "camera.qrCode.denied.prompt.button" = "Open Settings";
 "openSeaNonFungibleTokens.url.open" = "Open on %@";
-"address.ens.labelMessage" = "Ethereum address or ENS name";
+"address.ens.labelMessage" = "ILGON address or ENS name";
 "dappBrowser.title" = "";
 "dappBrowser.switchServer" = "Connected to: %@";
 "myDappsButton.imageLabel" = "My Bookmarks";
@@ -408,12 +410,10 @@
 "blockchain.ARTIS.tau1" = "ARTIS tau1 Network";
 "blockchain.Binance" = "Binance Network";
 "blockchain.Binance.test" = "Binance Testnet Network";
-"blockchain.Heco" = "Heco Network";
-"blockchain.Heco.test" = "Heco Testnet Network";
 "photos" = "Browse";
 "light" = "Light";
 "qrCode.title" = "Point your camera on QR code";
-"tokenScript.notSupportedSchema.error" = "Please upgrade AlphaWallet to support this TokenScript file";
+"tokenScript.notSupportedSchema.error" = "Please upgrade ILGON Wallet to support this TokenScript file";
 "tokenScript.moveFile.error" = "Error moving asset definition file from %@ to: %@: %@";
 "TokenScript.verifying" = "Verifying...";
 "TokenScript.showErrors" = "Show errors";
@@ -422,14 +422,14 @@
 "TokenScript.type2.conflictingFiles" = "Conflicting TokenScript Files";
 "TokenScript.type2.oldSchemaVersion" = "Old TokenScript Version";
 "TokenScript.type2.invalidSignature" = "Invalid Signature";
-"gettingStarted.subtitle" = "Welcome to AlphaWallet";
+"gettingStarted.subtitle" = "Welcome to ILGON Wallet";
 "gettingStarted.newWallet" = "Create a New Wallet";
 "gettingStarted.alreadyHaveWallet" = "I already have a wallet:";
 "backup.prompt.title" = "Your Wallet is not backed up!";
 "backup.prompt.description.withAmount" = "You have not backed up your wallet yet. You have %@ USD net. Act now.";
 "backup.prompt.backupButton.title" = "Back up Wallet";
 "backup.prompt.backup.remindLater" = "Remind me to back up later?";
-"backup.prompt.afterReceivingEther.title" = "Just received %@ ETH?";
+"backup.prompt.afterReceivingEther.title" = "Just received %@ ILG?";
 "backup.prompt.description.withoutAmount" = "Remember to back up your wallet by a secure seed phrase.";
 "backup.prompt.afterInterval.title" = "Time to back up your Wallet";
 "backup.prompt.afterInterval.description" = "We highly recommend to back up your wallet";
@@ -449,27 +449,23 @@
 "keystore.accessKey.nonHd.lock" = "To lock your private key to increase security";
 "keystore.lock.wallet.seed.title" = "Lock your Seed Phrase to Increase Security";
 "keystore.lock.wallet.privateKey.title" = "Lock your Private Key to Increase Security";
-"keystore.lock.wallet.seed.description" = "AlphaWallet security is being upgraded to the best achievable. Lock your seed phrase with biometrics";
-"keystore.lock.wallet.privateKey.description" = "AlphaWallet security is being upgraded to the best achievable. Lock your private key with biometrics";
+"keystore.lock.wallet.seed.description" = "ILGON Wallet security is being upgraded to the best achievable. Lock your seed phrase with biometrics";
+"keystore.lock.wallet.privateKey.description" = "ILGON Wallet security is being upgraded to the best achievable. Lock your private key with biometrics";
 "keystore.lock.wallet.seed.button" = "Lock Seed Phrase";
 "keystore.lock.wallet.privateKey.button" = "Lock Private Key";
 "wallet.security.level.red" = "BACK UP NOW!";
 "wallet.security.level.orange" = "NOT LOCKED";
 "wallet.security.level.green" = "100% SECURE";
-"wallets.showSeedPhrase.subtitle.error" = "Do not share your backup. AlphaWallet team members will not ask for it.";
+"wallets.showSeedPhrase.subtitle.error" = "Do not share your backup. ILGON Wallet team members will not ask for it.";
 "token.transactionConfirmation.gas.title" = "Speed (Gas)";
 "token.transactionConfirmation.contract.title" = "Contract";
-"token.transactionConfirmation.function.title" = "Function";
 "token.transactionConfirmation.default" = "Default";
-"token.transactionTransferConfirmation.title" = "Confirm Transfer?";
-"token.transactionPurchaseConfirmation.title" = "Confirm Purchase?";
-"token.transactionConfirmation.title" = "Confirm Transaction?";
+"token.transactionConfirmation.title" = "Confirm Transfer?";
 "a.wallet.token.transaction.inProgress.title" = "Transaction in Progress";
-"a.wallet.token.transaction.inProgress.subtitle" = "The transaction is sent to the Ethereum\nblockchain. It might take few minutes\nto be confirmed by miners.";
+"a.wallet.token.transaction.inProgress.subtitle" = "The transaction is sent to the \nblockchain. It might take few minutes\nto be confirmed by miners.";
+//"a.wallet.token.transaction.inProgress.subtitle" = "The transaction is sent to the ILGON\nblockchain. It might take few minutes\nto be confirmed by miners.";
 "a.wallet.token.transaction.inProgress.confirm" = "OK, great!";
 "a.wallet.token.erc20ExchangeOnUniswap.button.title" = "Exchange with Uniswap";
-"a.wallet.token.erc20ExchangeOn1inch.button.title" = "Swap";
-"a.wallet.token.xDaiBridge.button.title" = "Convert to DAI";
 "qrCode.myqrCode.title" = "My QR Code";
 "qrCode.sendToAddress.title" = "Send to this Address";
 "qrCode.watchWallet.title" = "Watch Wallet";
@@ -481,12 +477,38 @@
 "activity.to" = "to %@";
 "activity.approvalObtained" = "Gave approval to move %@";
 "activity.ownerApproved" = "Approved to move %@";
+"activity.goToToken" = "Go to Token";
+
+"walletConnect.title" = "WalletConnect";
+"walletConnect.statusPlaceholder" = "Status";
+"walletConnect.status.online" = "Online";
+"walletConnect.status.offline" = "Offline";
+"walletConnect.session.name" = "Name";
+"walletConnect.session.connect" = "Connect on %@";
+"walletConnect.session.connectedURL" = "Connected to";
+"walletConnect.session.disconnect" = "Disconnect";
+"walletConnect.session.signedTransactions" = "Signed Transactions";
+"walletConnect.start" = "%@\n\nStart WalletConnect session on:";
+"walletConnect.failure.title" = "Wallet connect failure";
+"walletConnect.sendRawTransaction.title" = "Send raw transaction";
+"walletConnect.activeSessions" = "Active connection to Dapps";
+"walletConnect.activeSessions.plural" = "Active connections to Dapps";
+
+"blockchain.Heco" = "Heco Network";
+"blockchain.Heco.test" = "Heco Testnet Network";
+"token.transactionConfirmation.function.title" = "Function";
+"token.transactionTransferConfirmation.title" = "Confirm Transfer?";
+"token.transactionPurchaseConfirmation.title" = "Confirm Purchase?";
+"token.transactionConfirmation.title" = "Confirm Transaction?";
+"a.wallet.token.erc20ExchangeOn1inch.button.title" = "Swap";
+
+"activity.ownerApproved" = "Approved to move %@";
 "activity.ownerApproved.pending" = "Approving to move %@";
 "activity.ownerApproved.failed" = "Failed to Approve to move %@";
 "activity.approve.amount.all" = "All %@";
 "activity.send.pending" = "Sending %@";
 "activity.send.failed" = "Failed to Send %@";
-"activity.goToToken" = "Go to Token";
+
 "configureTransaction.error.gasPriceTooLow" = "Gas Price must be a positive number";
 "configureTransaction.navigationBar.title" = "Set Speed";
 "configureTransaction.barButton.useDefault" = "Use Default";
@@ -506,7 +528,6 @@
 "transactionConfiguration.gasPrice.tooLow.short" = "Low Price";
 "transactionConfiguration.gasPrice.tooHigh.long" = "High Gas Price Warning!";
 "transactionConfiguration.gasPrice.tooLow.long" = "Gas Price Might Be Too Low";
-
 "transactionConfiguration.gasPrice.tooHigh.description" = "You set a really high gas price. Please make sure this is not a mistake. AlphaWallet uses gasnow.org";
 "transactionConfiguration.gasPrice.tooLow.description" = "Gas price is set below the 'slow' speed. Your transaction may take a long time to be written or may never be written.";
 "transactionConfiguration.gasPrice.congested.description" = "The Ethereum blockchain network is very congested now. Fees might be higher than usual.
@@ -522,17 +543,4 @@ You can check the latest gas price on gasnow.org";
 "transactionConfirmation.authorisation.reason" = "Authorize to confirm transaction";
 "transactionConfirmation.keystore.accessKey.sign" = "Accessing to perform transfer";
 "transactionConfirmation.fee.footerText" = "The higher the fee, the better chances and faster your transaction will go through. Fees are based on current Ethereum blockchain network load.";
-"walletConnect.title" = "WalletConnect";
-"walletConnect.statusPlaceholder" = "Status";
-"walletConnect.status.online" = "Online";
-"walletConnect.status.offline" = "Offline";
-"walletConnect.session.name" = "Name";
-"walletConnect.session.connect" = "Connect on %@";
-"walletConnect.session.connectedURL" = "Connected to";
-"walletConnect.session.disconnect" = "Disconnect";
-"walletConnect.session.signedTransactions" = "Signed Transactions";
-"walletConnect.start" = "%@\n\nStart WalletConnect session on:";
-"walletConnect.failure.title" = "Wallet connect failure";
-"walletConnect.sendRawTransaction.title" = "Send raw transaction"; 
-"walletConnect.activeSessions" = "Active connection to Dapps";
-"walletConnect.activeSessions.plural" = "Active connections to Dapps";
+

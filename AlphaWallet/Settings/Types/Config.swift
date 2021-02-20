@@ -58,7 +58,6 @@ struct Config {
         defaults.set(chainId, forKey: Keys.chainID)
     }
 
-    //TODO Only Dapp browser uses this
     static func getChainId(defaults: UserDefaults = UserDefaults.standard) -> Int {
         let id = defaults.integer(forKey: Keys.chainID)
         guard id > 0 else { return RPCServer.main.chainID }
@@ -109,6 +108,16 @@ struct Config {
         guard let dictionary = defaults.value(forKey: generateLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumberKey(wallet)) as? [String: NSNumber] else { return nil }
         return dictionary["\(server.chainID)"]?.intValue
     }
+    
+    static var allowNotifications: Bool {
+        let defaults = UserDefaults.standard
+        return defaults.bool(forKey: Keys.allowNotifications)
+    }
+    
+    static func setAllowNotifications(_ value: Bool) {
+        let defaults = UserDefaults.standard
+        defaults.set(value, forKey: Keys.allowNotifications)
+    }
 
     struct Keys {
         static let chainID = "chainID"
@@ -119,6 +128,7 @@ struct Config {
         static let walletAddressesAlreadyPromptedForBackUp = "walletAddressesAlreadyPromptedForBackUp "
         static let locale = "locale"
         static let enabledServers = "enabledChains"
+        static let allowNotifications = "allowNotificationsIlgon"
         static let lastFetchedErc20InteractionBlockNumber = "lastFetchedErc20InteractionBlockNumber"
         static let lastFetchedAutoDetectedTransactedTokenErc20BlockNumber = "lastFetchedAutoDetectedTransactedTokenErc20BlockNumber"
         static let lastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber = "lastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber"
@@ -141,10 +151,21 @@ struct Config {
         }
     }
 
+    var server: RPCServer {
+        let chainId = Config.getChainId()
+        if let server = enabledServers.first(where: { $0.chainID == chainId }) {
+            return server
+        } else {
+            return .main
+        }
+    }
+
     init(defaults: UserDefaults = UserDefaults.standard) {
         self.defaults = defaults
     }
 
+    let ilgonPriceInfo = URL(string: "https://priceapi.ilgonwallet.com/prices")!
+    
     let priceInfoEndpoints = URL(string: "https://api.coingecko.com")!
 
     var oldWalletAddressesAlreadyPromptedForBackUp: [String] {
@@ -169,7 +190,7 @@ struct Config {
         addresses.append(address.eip55String)
         defaults.setValue(addresses, forKey: Keys.walletAddressesAlreadyPromptedForBackUp)
     }
-
+    
     let oneInch = URL(string: "https://api.1inch.exchange")!
 }
 

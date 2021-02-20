@@ -6,13 +6,13 @@ import BigInt
 
 // swiftlint:disable type_body_length
 enum RPCServer: Hashable, CaseIterable {
-    case main
+    case main //PRIMARY
     case kovan
     case ropsten
     case rinkeby
     case poa
     case sokol
-    case classic
+    case classic //SECONDARY
     case callisto
     case xDai
     case goerli
@@ -26,13 +26,13 @@ enum RPCServer: Hashable, CaseIterable {
 
     var chainID: Int {
         switch self {
-        case .main: return 1
+        case .main: return getIntProperty(for: "MAIN_CHAIN_ID")
         case .kovan: return 42
         case .ropsten: return 3
         case .rinkeby: return 4
         case .poa: return 99
         case .sokol: return 77
-        case .classic: return 61
+        case .classic: return getIntProperty(for: "SECONDARY_CHAIN_ID")
         case .callisto: return 104729
         case .xDai: return 100
         case .goerli: return 5
@@ -49,20 +49,20 @@ enum RPCServer: Hashable, CaseIterable {
 
     var name: String {
         switch self {
-        case .main: return "Ethereum"
+        case .main: return getStringProperty(for: "MAIN_NETWORK_NAME")
         case .kovan: return "Kovan"
         case .ropsten: return "Ropsten"
         case .rinkeby: return "Rinkeby"
         case .poa: return "POA Network"
         case .sokol: return "Sokol"
-        case .classic: return "Ethereum Classic"
+        case .classic: return getStringProperty(for: "SECONDARY_NETWORK_NAME")
         case .callisto: return "Callisto"
         case .xDai: return "xDai"
         case .goerli: return "Goerli"
         case .artis_sigma1: return "ARTIS sigma1"
         case .artis_tau1: return "ARTIS tau1"
         case .binance_smart_chain: return "Binance"
-        case .binance_smart_chain_testnet: return "Binance Testnet"
+        case .binance_smart_chain_testnet: return "Binance"
         case .heco: return "Heco"
         case .heco_testnet: return "Heco Testnet"
         case .custom(let custom):
@@ -74,20 +74,20 @@ enum RPCServer: Hashable, CaseIterable {
         switch self {
         case .xDai, .classic, .main, .poa, .callisto, .binance_smart_chain, .heco:
             return false
-        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .custom, .heco_testnet:
+        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain_testnet, .heco_testnet, .custom:
             return true
         }
     }
 
     var getEtherscanURL: String? {
         switch self {
-        case .main: return Constants.mainnetEtherscanAPI
+        case .main: return getStringProperty(for: "ETHERSCAN_URL_MAIN")
         case .ropsten: return Constants.ropstenEtherscanAPI
         case .rinkeby: return Constants.rinkebyEtherscanAPI
         case .kovan: return Constants.kovanEtherscanAPI
         case .poa: return Constants.poaNetworkCoreAPI
         case .sokol: return nil
-        case .classic: return Constants.classicEtherscanAPI
+        case .classic: return getStringProperty(for: "ETHERSCAN_URL_SECONDARY")
         case .callisto: return nil
         case .goerli: return Constants.goerliEtherscanAPI
         case .xDai: return Constants.xDaiAPI
@@ -145,7 +145,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .heco: return Constants.hecoContractPage
         }
     }
-
+    
     //We assume that only Etherscan supports this and only for Ethereum mainnet: The token page instead of contract page
     var etherscanTokenDetailsWebPageURL: String {
         switch self {
@@ -179,7 +179,7 @@ enum RPCServer: Hashable, CaseIterable {
     func etherscanContractDetailsWebPageURL(for address: AlphaWallet.Address) -> URL {
         return URL(string: etherscanContractDetailsWebPageURL + address.eip55String)!
     }
-
+    
     func etherscanTokenDetailsWebPageURL(for address: AlphaWallet.Address) -> URL {
         return URL(string: etherscanTokenDetailsWebPageURL + address.eip55String)!
     }
@@ -214,8 +214,9 @@ enum RPCServer: Hashable, CaseIterable {
 
     var symbol: String {
         switch self {
-        case .main: return "ETH"
-        case .classic: return "ETC"
+        case .main: return "ILG"
+        case .classic: return "ILGT"
+            
         case .callisto: return "CLO"
         case .kovan, .ropsten, .rinkeby: return "ETH"
         case .poa, .sokol: return "POA"
@@ -223,7 +224,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .goerli: return "ETH"
         case .artis_sigma1, .artis_tau1: return "ATS"
         case .binance_smart_chain, .binance_smart_chain_testnet: return "BNB"
-        case .heco, .heco_testnet: return "HT"
+            case .heco, .heco_testnet: return "HT"
         case .custom(let custom):
             return custom.symbol
         }
@@ -231,8 +232,12 @@ enum RPCServer: Hashable, CaseIterable {
 
     var cryptoCurrencyName: String {
         switch self {
-        case .main, .classic, .callisto, .kovan, .ropsten, .rinkeby, .poa, .sokol, .goerli, .custom:
-            return "Ether"
+        case .main:
+            return "ILG"
+        case .classic:
+            return "ILGT"
+        case .callisto, .kovan, .ropsten, .rinkeby, .poa, .sokol, .goerli, .custom:
+            return "ETH"
         case .xDai:
             return "xDai"
         case .binance_smart_chain, .binance_smart_chain_testnet:
@@ -250,11 +255,12 @@ enum RPCServer: Hashable, CaseIterable {
 
     var web3Network: Networks {
         switch self {
-        case .main: return .Mainnet
+        //original: case .main: return .Mainnet
         case .kovan: return .Kovan
         case .ropsten: return .Ropsten
         case .rinkeby: return .Rinkeby
-        case .poa, .sokol, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet:
+        case .main, .poa, .sokol, .classic,
+             .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .heco, .heco_testnet:
             return .Custom(networkID: BigUInt(chainID))
         case .custom:
             return .Custom(networkID: BigUInt(chainID))
@@ -308,8 +314,8 @@ enum RPCServer: Hashable, CaseIterable {
     var rpcURL: URL {
         let urlString: String = {
             switch self {
-            case .main: return "https://mainnet.infura.io/v3/\(Constants.Credentials.infuraKey)"
-            case .classic: return "https://www.ethercluster.com/etc"
+            case .main: return getStringProperty(for: "MAIN_RPC_URL")
+            case .classic: return getStringProperty(for: "SECONDARY_RPC_URL")
             case .callisto: return "https://callisto.network/" //TODO Add endpoint
             case .kovan: return "https://kovan.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .ropsten: return "https://ropsten.infura.io/v3/\(Constants.Credentials.infuraKey)"
@@ -324,7 +330,8 @@ enum RPCServer: Hashable, CaseIterable {
             case .binance_smart_chain_testnet: return "https://data-seed-prebsc-1-s1.binance.org:8545"
             case .heco: return "https://http-mainnet.hecochain.com"
             case .heco_testnet: return "https://http-testnet.hecochain.com"
-            case .custom(let custom): return custom.endpoint
+            case .custom(let custom):
+                return custom.endpoint
             }
         }()
         return URL(string: urlString)!
@@ -333,8 +340,9 @@ enum RPCServer: Hashable, CaseIterable {
     var transactionInfoEndpoints: URL {
         let urlString: String = {
             switch self {
-            case .main: return "https://api-cn.etherscan.com"
-            case .classic: return "https://blockscout.com/etc/mainnet/api"
+            case .main: return getStringProperty(for: "TRANSACTION_INFO_ENDPOINTS_PRIMARY")
+            case .classic: return getStringProperty(for: "TRANSACTION_INFO_ENDPOINTS_SECONDARY")
+                
             case .callisto: return "https://callisto.trustwalletapp.com"
             case .kovan: return "https://api-kovan.etherscan.io"
             case .ropsten: return "https://api-ropsten.etherscan.io"
@@ -345,11 +353,12 @@ enum RPCServer: Hashable, CaseIterable {
             case .goerli: return "https://api-goerli.etherscan.io"
             case .artis_sigma1: return "https://explorer.sigma1.artis.network/api"
             case .artis_tau1: return "https://explorer.tau1.artis.network/api"
-            case .binance_smart_chain: return "https://bscscan.com/tx/"
-            case .binance_smart_chain_testnet: return "https://testnet.bscscan.com/tx/"
+            case .binance_smart_chain: return "https://explorer.binance.org/smart/tx/"
+            case .binance_smart_chain_testnet: return "https://explorer.binance.org/smart-testnet/tx/"
             case .heco_testnet: return "https://scan-testnet.hecochain.com/tx/"
             case .heco: return "https://scan.hecochain.com/tx/"
-            case .custom: return "" // Enable? make optional
+            case .custom:
+                return "" // Enable? make optional
             }
         }()
         return URL(string: urlString)!
@@ -370,13 +379,18 @@ enum RPCServer: Hashable, CaseIterable {
         switch self {
         case .main, .xDai:
             return .normal
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet:
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic,
+        .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet:
             return .low
         }
     }
 
     var blockChainName: String {
         switch self {
+        case .main:
+            return "ILGON Blockchain"
+        case .classic:
+            return "ILGON Test Blockchain"
         case .xDai:
             return R.string.localizable.blockchainXDAI()
         case .artis_sigma1:
@@ -387,19 +401,19 @@ enum RPCServer: Hashable, CaseIterable {
             return R.string.localizable.blockchainBinance()
         case .binance_smart_chain_testnet:
             return R.string.localizable.blockchainBinanceTest()
+        case .rinkeby, .ropsten, .custom, .callisto, .kovan, .sokol, .poa, .goerli:
+            return R.string.localizable.blockchainEthereum()
         case .heco:
             return R.string.localizable.blockchainHeco()
         case .heco_testnet:
             return R.string.localizable.blockchainHecoTest()
-        case .main, .rinkeby, .ropsten, .custom, .callisto, .classic, .kovan, .sokol, .poa, .goerli:
-            return R.string.localizable.blockchainEthereum()
         }
     }
 
     var blockChainNameColor: UIColor {
         switch self {
-        case .main: return .init(red: 41, green: 134, blue: 175)
-        case .classic: return .init(red: 55, green: 137, blue: 55)
+        case .main, .classic: return Colors.ilgoinButtonPrimaryColor //original: .init(red: 41, green: 134, blue: 175)
+        //case .classic: return .init(red: 55, green: 137, blue: 55)
         case .callisto: return .init(red: 88, green: 56, blue: 163)
         case .kovan: return .init(red: 112, green: 87, blue: 141)
         case .ropsten, .custom: return .init(red: 255, green: 74, blue: 141)
@@ -424,26 +438,19 @@ enum RPCServer: Hashable, CaseIterable {
 
     var iconImage: UIImage? {
         switch self {
-        case .main:
-            return R.image.eth()
+        case .main, .classic:
+            return R.image.logoILGON()!
+            //original case .classic: return R.image.tokenEtc()!
         case .xDai:
-            return R.image.xDai()
+            return R.image.xDai()!
         case .poa:
-            return R.image.tokenPoa()
-        case  .classic:
-            return R.image.tokenEtc()
+            return R.image.tokenPoa()!
         case .callisto:
-            return R.image.tokenCallisto()
+            return R.image.tokenCallisto()!
         case .artis_sigma1:
-            return R.image.tokenArtis()
-        case .binance_smart_chain:
-            return R.image.tokenBnb()
-        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_tau1, .binance_smart_chain_testnet, .custom:
+            return R.image.tokenArtis()!
+        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet:
             return nil
-        case .heco:
-            return R.image.hthecoMainnet()
-        case .heco_testnet:
-            return R.image.hthecoTestnet()
         }
     }
 
@@ -534,24 +541,23 @@ enum RPCServer: Hashable, CaseIterable {
     static var allCases: [RPCServer] {
         return [
             .main,
-            .kovan,
-            .ropsten,
-            .rinkeby,
-            .poa,
-            .sokol,
+            //.kovan,
+            //.ropsten,
+            //.rinkeby,
+            //.poa,
+            //.sokol,
             .classic,
-            .xDai,
-            .goerli,
-            .artis_sigma1,
-            .artis_tau1,
-            .binance_smart_chain_testnet,
-            .binance_smart_chain,
-            .heco,
-            .heco_testnet
+            //.xDai,
+            //.goerli,
+            //.artis_sigma1,
+            //.artis_tau1,
+            //.binance_smart_chain_testnet,
+            //.binance_smart_chain
         ]
     }
 }
 // swiftlint:enable type_body_length
+
 
 extension RPCServer: Codable {
     private enum Keys: String, CodingKey {

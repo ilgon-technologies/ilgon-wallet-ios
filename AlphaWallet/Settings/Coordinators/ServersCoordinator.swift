@@ -10,20 +10,20 @@ protocol ServersCoordinatorDelegate: class {
 class ServersCoordinator: Coordinator {
     static let serversOrdered: [RPCServer] = [
         .main,
-        .xDai,
+        //.xDai,
         .classic,
-        .poa,
-        .ropsten,
-        .goerli,
-        .kovan,
-        .rinkeby,
-        .sokol,
-        .binance_smart_chain,
-        .binance_smart_chain_testnet,
-        .heco,
-        .heco_testnet,
-        .artis_sigma1,
-        .artis_tau1,
+        //.poa,
+        //.ropsten,
+        //.goerli,
+        //.kovan,
+        //.rinkeby,
+        //.sokol,
+        //.binance_smart_chain,
+        //.binance_smart_chain_testnet,
+        //.artis_sigma1,
+        //.artis_tau1,
+        //.heco,
+        //.heco_testnet,
     ]
 
     private let defaultServer: RPCServerOrAuto

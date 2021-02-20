@@ -10,7 +10,7 @@ import UIKit
 
 struct AdvancedSettingsViewModel {
     
-    var rows: [AdvancedSettingsRow] = [.console, .clearBrowserCache, .tokenScript, .changeLanguage]
+    var rows: [AdvancedSettingsRow] = [ .changeLanguage]
     
     func numberOfRows() -> Int {
         return rows.count

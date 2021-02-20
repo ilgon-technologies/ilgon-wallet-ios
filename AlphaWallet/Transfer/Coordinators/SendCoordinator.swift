@@ -137,7 +137,7 @@ extension SendCoordinator: SendViewControllerDelegate {
         coordinator.start()
     }
 
-    func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController, amount: String) {
+    func didPressConfirm(transaction: UnconfirmedTransaction, transactionType: TransactionType, in viewController: SendViewController, amount: String, includeTxCost: Bool) {
         let configuration: TransactionConfirmationConfiguration = .sendFungiblesTransaction(
             confirmType: .signThenSend,
             keystore: keystore,
@@ -145,7 +145,7 @@ extension SendCoordinator: SendViewControllerDelegate {
             amount: amount,
             ethPrice: ethPrice
         )
-        let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator)
+        let coordinator = TransactionConfirmationCoordinator(navigationController: navigationController, session: session, transaction: transaction, configuration: configuration, analyticsCoordinator: analyticsCoordinator, deductWithTxFee: includeTxCost)
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start()
@@ -159,7 +159,7 @@ extension SendCoordinator: SendViewControllerDelegate {
 extension SendCoordinator: TransactionConfirmationCoordinatorDelegate {
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didFailTransaction error: AnyError) {
         //TODO improve error message. Several of this delegate func
-        coordinator.navigationController.displayError(message: error.prettyError)
+        coordinator.navigationController.displayError(message: error.localizedDescription)
     }
 
     func coordinator(_ coordinator: TransactionConfirmationCoordinator, didCompleteTransaction result: TransactionConfirmationResult) {

@@ -20,6 +20,7 @@ enum Analytics {
         case cancelsTransactionInActionSheet = "Txn Confirmation Cancelled"
     }
 
+
     enum Properties {
         static let address = "Address"
         static let addressFrom = "From"

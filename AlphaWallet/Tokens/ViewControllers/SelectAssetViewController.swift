@@ -69,7 +69,7 @@ class SelectAssetViewController: UIViewController {
             onRetry: { [weak self] in
                 self?.startLoading()
                 self?.tokenCollection.fetch()
-            })
+        })
 
         configure(viewModel: viewModel)
     }
@@ -156,7 +156,8 @@ extension SelectAssetViewController: UITableViewDataSource {
                 currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
                 currencyAmountWithoutSymbol: session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol,
                 server: server,
-                assetDefinitionStore: assetDefinitionStore
+                assetDefinitionStore: assetDefinitionStore,
+                address: session.account.address.eip55String
             ))
             cell.accessoryType = viewModel.accessoryType(selectedToken, indexPath: indexPath)
 

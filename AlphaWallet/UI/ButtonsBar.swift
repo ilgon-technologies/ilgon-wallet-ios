@@ -6,7 +6,7 @@ import UIKit
 enum ButtonsBarConfiguration {
     case empty
     case combined(buttons: Int)
-    case green(buttons: Int)
+    case green(buttons: Int) //Violet buttons. I did not rename the enum case because of future compatibility
     case white(buttons: Int)
     case custom(types: [ButtonsBarButtonType])
 
@@ -110,7 +110,7 @@ class ButtonsBarBackgroundView: UIView {
         addSubview(separatorLine)
         addSubview(buttonsBar)
         translatesAutoresizingMaskIntoConstraints = false
-        backgroundColor = Colors.appWhite
+        backgroundColor = Colors.appBackground
 
         NSLayoutConstraint.activate([
             separatorLine.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -238,6 +238,10 @@ class ButtonsBar: UIView {
         let button = view.childView
         button.setBackgroundColor(viewModel.buttonBackgroundColor, forState: .normal)
         button.setBackgroundColor(viewModel.disabledButtonBackgroundColor, forState: .disabled)
+        
+        if viewModel.buttonBackgroundColor != Colors.appWhite {
+            button.setBackgroundColor(Colors.ilgoinButtonPrimaryColorPressed, forState: .highlighted)
+        }
 
         button.setTitleColor(viewModel.buttonTitleColor, for: .normal)
         button.setTitleColor(viewModel.disabledButtonTitleColor, for: .disabled)
@@ -353,29 +357,29 @@ class ButtonsBar: UIView {
 private struct ButtonsBarViewModel {
 
     static let greenButton = ButtonsBarViewModel(
-        buttonBackgroundColor: Colors.appActionButtonGreen,
-        disabledButtonBackgroundColor: Colors.appActionButtonGreen.withAlphaComponent(0.3),
-        disabledButtonBorderColor: Colors.appActionButtonGreen,
+        buttonBackgroundColor: Colors.ilgoinButtonPrimaryColor,
+        disabledButtonBackgroundColor: Colors.ilgoinButtonPrimaryInactiveColor,
+        disabledButtonBorderColor: Colors.ilgoinButtonPrimaryInactiveColor,
         buttonTitleColor: Colors.appWhite,
-        buttonBorderColor: Colors.appActionButtonGreen,
+        buttonBorderColor: Colors.ilgoinButtonPrimaryColor,
         buttonBorderWidth: 0
     )
 
     static let whiteButton = ButtonsBarViewModel(
         buttonBackgroundColor: Colors.appWhite,
         disabledButtonBackgroundColor: Colors.appWhite,
-        disabledButtonBorderColor: R.color.azure()!.withAlphaComponent(0.3),
-        disabledButtonTitleColor: R.color.azure()!.withAlphaComponent(0.3)
+        disabledButtonBorderColor: Colors.ilgoinButtonPrimaryInactiveColor,
+        disabledButtonTitleColor: Colors.ilgoinButtonPrimaryInactiveColor
     )
 
     static let moreButton = ButtonsBarViewModel()
 
     var buttonBackgroundColor: UIColor = Colors.appWhite
 
-    var disabledButtonBackgroundColor: UIColor = Colors.disabledActionButton
-    var disabledButtonBorderColor: UIColor = Colors.disabledActionButton
+    var disabledButtonBackgroundColor: UIColor = Colors.ilgoinButtonPrimaryInactiveColor
+    var disabledButtonBorderColor: UIColor = Colors.ilgoinButtonPrimaryInactiveColor
 
-    var buttonTitleColor: UIColor = R.color.azure()!
+    var buttonTitleColor: UIColor = Colors.ilgoinButtonPrimaryColor
 
     var disabledButtonTitleColor: UIColor = Colors.appWhite
 
@@ -403,7 +407,7 @@ private struct ButtonsBarViewModel {
         return Fonts.semibold(size: ScreenChecker().isNarrowScreen ? 16 : 20)
     }
 
-    var buttonBorderColor: UIColor = R.color.azure()!
+    var buttonBorderColor: UIColor = Colors.ilgoinButtonPrimaryColor
 
     var buttonBorderWidth: CGFloat = 1.0
 }

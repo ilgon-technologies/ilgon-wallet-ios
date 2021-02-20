@@ -83,6 +83,16 @@ final class EtherNumberFormatter {
             return number
         }
     }
+    
+    func numberWithoutDecimals(from string: String) -> BigInt? {
+        guard let _ = string.index(where: { String($0) == decimalSeparator }) ?? string.index(where: { String($0) == EtherNumberFormatter.decimalPoint }) else {
+            // No fractional part
+            return BigInt(string).flatMap({ $0 })
+        }
+        
+        let strings = string.split(separator: Character(decimalSeparator))
+        return BigInt(strings[0])
+    }
 
     /// Formats a `BigInt` for displaying to the user.
     ///

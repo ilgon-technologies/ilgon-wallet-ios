@@ -25,9 +25,9 @@ public struct Constants {
     public static let artisTau1MagicLinkHost = "artis_tau1.aw.app"
     public static let binanceMagicLinkHost = "binance.aw.app"
     public static let binanceTestMagicLinkHost = "test-binance.aw.app"
+    public static let customMagicLinkHost = "custom.aw.app"
     public static let hecoMagicLinkHost = "heco.aw.app"
     public static let hecoTestMagicLinkHost = "test-heco.aw.app"
-    public static let customMagicLinkHost = "custom.aw.app"
 
     public enum Currency {
         static let usd = "USD"
@@ -71,11 +71,11 @@ public struct Constants {
     static let balances165Hash721Ticket = "0xc84aae17"
 
     //etherscan-compatible APIs
-    public static let mainnetEtherscanAPI = "https://api-cn.etherscan.com/api?module=account&action=txlist&address="
+    public static let mainnetEtherscanAPI = "\(getStringProperty(for: "TRANSACTION_INFO_ENDPOINTS_PRIMARY"))api?module=account&action=txlist&address="
     public static let ropstenEtherscanAPI = "https://ropsten.etherscan.io/api?module=account&action=txlist&address="
     public static let kovanEtherscanAPI = "https://api-kovan.etherscan.io/api?module=account&action=txlist&address="
     public static let rinkebyEtherscanAPI = "https://rinkeby.etherscan.io/api?module=account&action=txlist&address="
-    public static let classicEtherscanAPI = "https://blockscout.com/etc/mainnet/api?module=account&action=txlist&address="
+    public static let classicEtherscanAPI = "\(getStringProperty(for: "TRANSACTION_INFO_ENDPOINTS_SECONDARY"))api?module=account&action=txlist&address="
     public static let xDaiAPI = "https://blockscout.com/poa/dai/api?module=account&action=txlist&address="
     public static let poaNetworkCoreAPI = "https://blockscout.com/poa/core/api?module=account&action=txlist&address="
     public static let goerliEtherscanAPI = "https://api-goerli.etherscan.io/api?module=account&action=txlist&address="
@@ -84,11 +84,11 @@ public struct Constants {
 
     //etherscan-compatible erc20 transaction event APIs
     //The fetch ERC20 transactions endpoint from Etherscan returns only ERC20 token transactions but the Blockscout version also includes ERC721 transactions too (so it's likely other types that it can detect will be returned too); thus we check the token type rather than assume that they are all ERC20
-    public static let mainnetEtherscanAPIErc20Events = "https://api-cn.etherscan.com/api?module=account&action=tokentx&address="
+    public static let mainnetEtherscanAPIErc20Events = "\(getStringProperty(for: "TRANSACTION_INFO_ENDPOINTS_PRIMARY"))api?module=account&action=tokentx&address="
     public static let ropstenEtherscanAPIErc20Events = "https://ropsten.etherscan.io/api?module=account&action=tokentx&address="
     public static let kovanEtherscanAPIErc20Events = "https://api-kovan.etherscan.io/api?module=account&action=tokentx&address="
     public static let rinkebyEtherscanAPIErc20Events = "https://rinkeby.etherscan.io/api?module=account&action=tokentx&address="
-    public static let classicAPIErc20Events = "https://blockscout.com/etc/mainnet/api?module=account&action=tokentx&address="
+    public static let classicAPIErc20Events = "\(getStringProperty(for: "TRANSACTION_INFO_ENDPOINTS_SECONDARY"))api?module=account&action=tokentx&address="
     public static let xDaiAPIErc20Events = "https://blockscout.com/poa/dai/api?module=account&action=tokentx&address="
     public static let poaNetworkCoreAPIErc20Events = "https://blockscout.com/poa/core/api?module=account&action=tokentx&address="
     public static let goerliEtherscanAPIErc20Events = "https://api-goerli.etherscan.io/api?module=account&action=tokentx&address="
@@ -122,14 +122,12 @@ public struct Constants {
     //Using "kat" instead of "cryptokitties" to avoid being mistakenly detected by app review as supporting CryptoKitties
     public static let katContractAddress = "0x06012c8cf97bead5deae237070f9587f8e7a266d"
 
-    static let xDaiBridge = URL(string: "https://bridge.xdaichain.com/")!
-
     //ENS
     static let ENSRegistrarAddress = AlphaWallet.Address(string: "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e")!
     static let ENSRegistrarRopsten = ENSRegistrarAddress
     static let ENSRegistrarRinkeby = ENSRegistrarAddress
     static let ENSRegistrarGoerli = ENSRegistrarAddress
-
+    
     static let gasNowEndpointBaseUrl = "https://www.gasnow.org"
     static let highStandardGasThresholdGwei = BigInt(55)
 
@@ -196,7 +194,7 @@ public struct Constants {
         (name: "HKS", contract: AlphaWallet.Address(string: "0x75cB2Cc380d1387a79eE64b1b7C9Fa051139a319")!),
     ]
 
-    static let defaultEnabledServers: [RPCServer] = [.main, .xDai]
+    static let defaultEnabledServers: [RPCServer] = [.main ] //[.main, .xDai]
 
     static let tokenScriptUrlSchemeForResources = "tokenscript-resource:///"
 
@@ -210,6 +208,9 @@ public struct Constants {
 
     //EtherNumberFormatter
     static let etherFormatterFractionDigits = 4
+    
+    //EtherNumberFormatterSend
+    static let etherFormatterFractionDigitsSend = 6
 }
 
 public struct UnitConfiguration {

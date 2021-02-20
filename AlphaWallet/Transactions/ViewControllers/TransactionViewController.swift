@@ -4,6 +4,8 @@ import UIKit
 import Result
 import SafariServices
 import MBProgressHUD
+import PromiseKit
+import SwiftyJSON
 
 protocol TransactionViewControllerDelegate: class, CanOpenURL {
 }
@@ -13,8 +15,7 @@ class TransactionViewController: UIViewController {
         return .init(
             transaction: transaction,
             chainState: session.chainState,
-            currentWallet: session.account,
-            currencyRate: session.balanceCoordinator.currencyRate
+            currentWallet: session.account
         )
     }()
     private let roundedBackground = RoundedBackground()
@@ -22,6 +23,7 @@ class TransactionViewController: UIViewController {
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private let session: WalletSession
     private let transaction: Transaction
+    private var isFetchingPrice: Bool = false
 
     weak var delegate: TransactionViewControllerDelegate?
 
@@ -42,24 +44,7 @@ class TransactionViewController: UIViewController {
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
 
-        let header = TransactionHeaderView(server: session.server)
-        header.translatesAutoresizingMaskIntoConstraints = false
-        header.configure(amount: viewModel.amountAttributedString)
-
-        let items: [UIView] = [
-            .spacer(),
-            header,
-            .spacer(),
-            item(title: viewModel.fromLabelTitle, value: viewModel.from, icon: R.image.copy()),
-            item(title: viewModel.toLabelTitle, value: viewModel.to, icon: R.image.copy()),
-            item(title: viewModel.gasFeeLabelTitle, value: viewModel.gasFee),
-            item(title: viewModel.confirmationLabelTitle, value: viewModel.confirmation),
-            .spacer(),
-            item(title: viewModel.transactionIDLabelTitle, value: viewModel.transactionID, icon: R.image.copy()),
-            item(title: viewModel.createdAtLabelTitle, value: viewModel.createdAt),
-            item(title: viewModel.blockNumberLabelTitle, value: viewModel.blockNumber),
-            item(title: viewModel.nonceLabelTitle, value: viewModel.nonce),
-        ]
+        let items: [UIView] = getStackViewItems()
 
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(scrollView)
@@ -67,6 +52,7 @@ class TransactionViewController: UIViewController {
         let stackView = items.asStackView(axis: .vertical, spacing: 10)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)
+        stackView.tag = STACK_VIEW_TAG
 
         if viewModel.shareAvailable {
             navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(share(_:)))
@@ -102,6 +88,81 @@ class TransactionViewController: UIViewController {
         ] + roundedBackground.createConstraintsWithContainer(view: view))
 
         configure()
+    }
+    
+    func reloadStackView() {
+        if let stackView = view.viewWithTag(STACK_VIEW_TAG) as? UIStackView {
+            stackView.removeAllArrangedSubviews()
+            stackView.addArrangedSubviews(getStackViewItems() )
+            view.layoutIfNeeded()
+        }
+    }
+    
+    private func getStackViewItems() -> [UIView] {
+        let header = TransactionHeaderView(server: session.server)
+        header.translatesAutoresizingMaskIntoConstraints = false
+        header.configure(amount: viewModel.amountAttributedString)
+        return [
+            .spacer(),
+            header,
+            .spacer(),
+            item(title: viewModel.fromLabelTitle, value: viewModel.from, icon: R.image.copy()),
+            item(title: viewModel.toLabelTitle, value: viewModel.to, icon: R.image.copy()),
+            item(title: viewModel.gasFeeLabelTitle, value: viewModel.gasFee),
+            item(title: viewModel.confirmationLabelTitle, value: viewModel.confirmation),
+            .spacer(),
+            item(title: viewModel.transactionIDLabelTitle, value: viewModel.transactionID, icon: R.image.copy()),
+            item(title: viewModel.createdAtLabelTitle, value: viewModel.createdAt),
+            item(title: viewModel.blockNumberLabelTitle, value: viewModel.blockNumber),
+            item(title: viewModel.nonceLabelTitle, value: viewModel.nonce),
+        ]
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        loadPrice()
+    }
+    
+    func onRateLoaded(rate: CurrencyRate?) {
+        guard let rate = rate, rate.rates[0].price > 0 else { return }
+        viewModel.currencyRate = rate
+        reloadStackView()
+    }
+    
+    private func loadPrice() {
+        guard transaction.chainId == getIntProperty(for: "MAIN_CHAIN_ID")
+                && !isFetchingPrice
+        else { return }
+        let provider = AlphaWalletProviderFactory.makeProvider()
+        let priceToUpdate = AlphaWalletService.formerPriceOfEth(config: session.config, date: transaction.date)
+        isFetchingPrice = true
+        firstly {
+            provider.request(priceToUpdate)
+        }.map { response -> CurrencyRate? in
+            var currencyRate: CurrencyRate?
+            do {
+                let result = try JSON(response.mapJSON())
+                let data = result["data"]
+                let priceUSD = data["ILG_USD"]
+                currencyRate = CurrencyRate(
+                    currency: "ilg",
+                    rates: [
+                        Rate(
+                            code: "ilg",
+                            price: priceUSD.doubleValue,
+                            contract: Constants.nativeCryptoAddressInDatabase.eip55String
+                        ),
+                    ]
+                )
+            } catch {
+                print("Unexpected error \(error)")
+            }
+            return currencyRate
+        }.done { [weak self] currencyRate in
+            self?.onRateLoaded(rate: currencyRate)
+        }.cauterize().finally { [weak self] in
+            self?.isFetchingPrice = false
+        }
     }
 
     override func viewDidLayoutSubviews() {
@@ -179,3 +240,5 @@ class TransactionViewController: UIViewController {
         dismiss(animated: true, completion: nil)
     }
 }
+
+private let STACK_VIEW_TAG = 100

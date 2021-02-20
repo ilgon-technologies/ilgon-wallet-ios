@@ -3,6 +3,7 @@
 import UIKit
 
 protocol AmountTextFieldDelegate: class {
+    //func didChangeAmount(in textField: AmountTextField)
     func changeAmount(in textField: AmountTextField)
     func changeType(in textField: AmountTextField)
     func shouldReturn(in textField: AmountTextField) -> Bool
@@ -120,19 +121,33 @@ class AmountTextField: UIControl {
         textField.delegate = self
         textField.keyboardType = .decimalPad
         textField.leftViewMode = .always
-        textField.inputAccessoryView = UIToolbar.doneToolbarButton(#selector(closeKeyboard), self)
+        textField.inputAccessoryView = makeToolbarWithDoneButton() // UIToolbar.doneToolbarButton(#selector(closeKeyboard), self)
         textField.textColor = R.color.black()!
         textField.font = DataEntry.Font.amountTextField
         textField.textAlignment = .right
 
         return textField
     }()
+    
+    private func makeToolbarWithDoneButton() -> UIToolbar {
+        // Frame needed, but actual values aren't that important
+        let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 100, height: 40))
+        toolbar.barStyle = .default
+
+        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let button = UIBarButtonItem(customView: inputAccessoryButton)
+        toolbar.items = [flexSpace, button]
+        toolbar.sizeToFit()
+
+        return toolbar
+    }
 
     private lazy var inputAccessoryButton: UIButton = {
         let button = UIButton()
         button.setTitle(accessoryButtonTitle.buttonTitle, for: .normal)
-        button.setTitleColor(R.color.black(), for: .normal)
-
+        applyVioletButtonStyle(button: button)
+        button.contentEdgeInsets = UIEdgeInsets(top: 5, left: 15, bottom: 5, right: 15)
+        button.cornerRadius = 5
         return button
     }()
 
@@ -155,6 +170,10 @@ class AmountTextField: UIControl {
     private var dollarCostRawValue: NSDecimalNumber?
     private let cryptoCurrency: Currency
     private var currentPair: Pair
+    
+    var ethCostNum: NSDecimalNumber {
+        ethCostRawValue ?? 0
+    }
 
     var cryptoToDollarRate: NSDecimalNumber? = nil {
         willSet {
@@ -191,23 +210,24 @@ class AmountTextField: UIControl {
                 return textField.text?.droppedTrailingZeros ?? "0"
             case .usd:
                 guard let value = ethCostRawValue else { return "0" }
-                return StringFormatter().alternateAmount(value: value).droppedTrailingZeros
+                return StringFormatter().alternateSendAmount(value: value).droppedTrailingZeros
             }
         }
         set {
             let valueToSet = newValue.optionalDecimalValue
-
             ethCostRawValue = valueToSet
             recalculate(amountValue: valueToSet, for: cryptoCurrency)
-
-            switch currentPair.left {
-            case .cryptoCurrency:
-                textField.text = formatValueToDisplayValue(ethCostRawValue)
-            case .usd:
-                textField.text = formatValueToDisplayValue(dollarCostRawValue)
-            }
-
+            setTextFieldText()
             updateAlternatePricingDisplay()
+        }
+    }
+    
+    private func setTextFieldText() {
+        switch currentPair.left {
+        case .cryptoCurrency:
+            textField.text = formatValueToDisplayValue(ethCostRawValue)
+        case .usd:
+            textField.text = formatValueToDisplayValue(dollarCostRawValue)
         }
     }
 
@@ -226,12 +246,14 @@ class AmountTextField: UIControl {
         guard let amount = value else {
             return String()
         }
-
+        
         switch currentPair.left {
         case .cryptoCurrency:
-            return StringFormatter().currency(with: amount, and: Constants.Currency.usd).droppedTrailingZeros
+            return StringFormatter().currencySendAmount(value: amount).droppedTrailingZeros
+            //return StringFormatter().currency(with: amount, and: Constants.Currency.usd).droppedTrailingZeros
         case .usd:
-            return StringFormatter().alternateAmount(value: amount).droppedTrailingZeros
+            return StringFormatter().alternateSendAmount(value: amount).droppedTrailingZeros
+            //return StringFormatter().alternateAmount(value: amount).droppedTrailingZeros
         }
     }
 
@@ -275,6 +297,7 @@ class AmountTextField: UIControl {
         }
     }
 
+    
     let alternativeAmountLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -300,7 +323,7 @@ class AmountTextField: UIControl {
         return DecimalFormatter()
     }()
 
-    var isAlternativeAmountEnabled: Bool {
+    var isAlternativeAmountEnabled: Bool = false /*{
         get {
             return !alternativeAmountLabelContainer.isHidden
         }
@@ -308,7 +331,7 @@ class AmountTextField: UIControl {
             //Intentionally not sure the equivalent amount for now
             alternativeAmountLabelContainer.isHidden = !newValue//true //!newValue
         }
-    }
+    }*/
 
     var availableTextHidden: Bool {
         get {
@@ -346,7 +369,7 @@ class AmountTextField: UIControl {
         addSubview(stackView)
 
         errorState = .none
-        updateAlternateAmountLabel(alternativeAmount)
+        //updateAlternateAmountLabel(alternativeAmount)
 
         NSLayoutConstraint.activate([
             stackView.anchorsConstraint(to: self),
@@ -355,6 +378,7 @@ class AmountTextField: UIControl {
         inputAccessoryButton.addTarget(self, action: #selector(closeKeyboard), for: .touchUpInside)
     }
 
+    /*
     private func updateAlternateAmountLabel(_ value: NSDecimalNumber?) {
         let amount = formatValueToDisplayValue(value)
 
@@ -374,7 +398,7 @@ class AmountTextField: UIControl {
                 }
             }
         }
-    }
+    }*/
 
     @discardableResult override func becomeFirstResponder() -> Bool {
         super.becomeFirstResponder()
@@ -388,21 +412,20 @@ class AmountTextField: UIControl {
 
     @objc private func fiatAction(button: UIButton) {
         guard cryptoToDollarRate != nil else { return }
-
-        let oldAlternateAmount = formatValueToDisplayValue(alternativeAmount)
+        //let oldAlternateAmount = formatValueToDisplayValue(alternativeAmount)
 
         togglePair()
+        setTextFieldText()
+        //textField.text = formatValueToDisplayValue(amount) //oldAlternateAmount
 
-        textField.text = oldAlternateAmount
-
-        updateAlternateAmountLabel(alternativeAmount)
+        //updateAlternateAmountLabel(alternativeAmount)
 
         becomeFirstResponder()
         delegate?.changeType(in: self)
     }
 
     private func updateAlternatePricingDisplay() {
-        updateAlternateAmountLabel(alternativeAmount)
+        //updateAlternateAmountLabel(alternativeAmount)
 
         delegate?.changeAmount(in: self)
     }
@@ -444,7 +467,6 @@ extension AmountTextField: UITextFieldDelegate {
             switch currentPair.left {
             case .cryptoCurrency:
                 ethCostRawValue = enteredString.optionalDecimalValue
-
                 recalculate(amountValue: ethCostRawValue)
             case .usd:
                 dollarCostRawValue = enteredString.optionalDecimalValue
@@ -486,7 +508,7 @@ private extension UITextField {
         }
         return true
     }
-} 
+}
 
 extension Character {
     var toString: String {
@@ -499,6 +521,8 @@ extension String {
     ///Allow to convert locale based decimal number to its Double value supports strings like `123,123.12`
     var optionalDecimalValue: NSDecimalNumber? {
         return EtherNumberFormatter.full.decimal(from: self)
+            ?? EtherNumberFormatter.plain.decimal(from: self)
+            ?? EtherNumberFormatter.plain.decimalCustom(from: self)
     }
 
     var droppedTrailingZeros: String {
@@ -538,11 +562,31 @@ extension EtherNumberFormatter {
         let formatter = Wrapper.formatter
         formatter.decimalSeparator = decimalSeparator
         formatter.groupingSeparator = groupingSeparator
-
         guard let result = formatter.number(from: value)?.decimalValue else { return nil }
-
+        
         return NSDecimalNumber(decimal: result)
     }
+    
+    /// returns Double? value from `value` formatted from `EtherNumberFormatter` with appropriate `decimalSeparator` and `groupingSeparator`
+    func decimalCustom(from value: String) -> NSDecimalNumber? {
+
+        enum Wrapper {
+            static let formatter: NumberFormatter = {
+                let formatter = NumberFormatter()
+                formatter.numberStyle = .decimal
+
+                return formatter
+            }()
+        }
+
+        let formatter = Wrapper.formatter
+        formatter.decimalSeparator = "."
+        formatter.groupingSeparator = ""
+        guard let result = formatter.number(from: value)?.decimalValue else { return nil }
+        
+        return NSDecimalNumber(decimal: result)
+    }
+
 }
 
 extension UIToolbar {

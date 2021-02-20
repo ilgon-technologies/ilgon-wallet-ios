@@ -60,6 +60,10 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ETHERSCAN_URL_MAIN</key>
+	<string>https://$(ETHERSCAN_URL_MAIN)</string>
+	<key>ETHERSCAN_URL_SECONDARY</key>
+	<string>https://$(ETHERSCAN_URL_SECONDARY)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>
@@ -73,6 +77,16 @@
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
+	<key>MAIN_CHAIN_ID</key>
+	<string>$(MAIN_CHAIN_ID)</string>
+	<key>MAIN_NETWORK_NAME</key>
+	<string>$(MAIN_NETWORK_NAME)</string>
+	<key>MAIN_RPC_URL</key>
+	<string>https://$(MAIN_RPC_URL)</string>
+	<key>MAIN_STAKING_CONTRACT_ADDRESS</key>
+	<string>$(MAIN_STAKING_CONTRACT_ADDRESS)</string>
+	<key>MAIN_TX_URL</key>
+	<string>https://$(MAIN_TX_URL)</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
@@ -88,6 +102,20 @@
 	<string>Sending QR Code to your contacts</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Sending QR Code to your contacts</string>
+	<key>SECONDARY_CHAIN_ID</key>
+	<string>$(SECONDARY_CHAIN_ID)</string>
+	<key>SECONDARY_NETWORK_NAME</key>
+	<string>$(SECONDARY_NETWORK_NAME)</string>
+	<key>SECONDARY_RPC_URL</key>
+	<string>https://$(SECONDARY_RPC_URL)</string>
+	<key>SECONDARY_STAKING_CONTRACT_ADDRESS</key>
+	<string>$(SECONDARY_STAKING_CONTRACT_ADDRESS)</string>
+	<key>SECONDARY_TX_URL</key>
+	<string>https://$(SECONDARY_TX_URL)</string>
+	<key>TRANSACTION_INFO_ENDPOINTS_PRIMARY</key>
+	<string>https://$(TRANSACTION_INFO_ENDPOINTS_PRIMARY)</string>
+	<key>TRANSACTION_INFO_ENDPOINTS_SECONDARY</key>
+	<string>https://$(TRANSACTION_INFO_ENDPOINTS_SECONDARY)</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>SourceSansPro-Black.otf</string>

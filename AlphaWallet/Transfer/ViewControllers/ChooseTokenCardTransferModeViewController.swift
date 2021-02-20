@@ -71,7 +71,7 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
         footerBar.addSubview(buttonsBar)
 
         NSLayoutConstraint.activate([
-			header.heightAnchor.constraint(equalToConstant: 90),
+            header.heightAnchor.constraint(equalToConstant: 90),
 
             tokenRowView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tokenRowView.trailingAnchor.constraint(equalTo: view.trailingAnchor),

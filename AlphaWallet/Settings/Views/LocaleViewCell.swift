@@ -28,6 +28,8 @@ class LocaleViewCell: UITableViewCell {
 
     func configure(viewModel: LocaleViewModel) {
         selectionStyle = .default
+        
+        tintColor = Colors.ilgoinButtonPrimaryColor
         backgroundColor = viewModel.backgroundColor
 
         accessoryType = viewModel.accessoryType

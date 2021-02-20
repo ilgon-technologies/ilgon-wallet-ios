@@ -118,8 +118,7 @@ class GenerateTransferMagicLinkViewController: UIViewController {
 
             detailsBackground.backgroundColor = viewModel.detailsBackgroundBackgroundColor
 
-            actionButton.setTitleColor(viewModel.actionButtonTitleColor, for: .normal)
-            actionButton.setBackgroundColor(viewModel.actionButtonBackgroundColor, forState: .normal)
+            applyVioletButtonStyle(button: actionButton)
             actionButton.titleLabel?.font = viewModel.actionButtonTitleFont
             actionButton.setTitle(viewModel.actionButtonTitle, for: .normal)
             actionButton.cornerRadius = Metrics.CornerRadius.button

@@ -181,6 +181,7 @@ extension AddHideTokensViewController: UITableViewDataSource {
                 currencyAmountWithoutSymbol: session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol,
                 server: token.server,
                 assetDefinitionStore: assetDefinitionStore,
+                address: session.account.address.eip55String,
                 isVisible: isVisible
             ))
             return cell

@@ -69,10 +69,11 @@ class TokensDataStore {
     private let assetDefinitionStore: AssetDefinitionStore
     private let realm: Realm
     private var pricesTimer = Timer()
-    private var ethTimer = Timer()
+    private var balanceTimer = Timer()
     //We should refresh prices every 5 minutes.
     private let intervalToRefreshPrices = 300.0
-    private let intervalToETHRefresh = 10.0
+    //private let intervalToETHRefresh = 10.0
+    private let intervalToBalanceRefresh = 5.0
     private let numberOfTimesToRetryFetchContractData = 2
 
     private var chainId: Int {
@@ -164,7 +165,7 @@ class TokensDataStore {
 
         //TODO not needed for setupCallForAssetAttributeCoordinators? Look for other callers of DataStore.updateDelegate
         self.scheduledTimerForPricesUpdate()
-        self.scheduledTimerForEthBalanceUpdate()
+        self.scheduledTimerForBalanceUpdate()
     }
 
     private func addEthToken() {
@@ -598,6 +599,20 @@ class TokensDataStore {
             }
         }
     }
+    
+    func refreshStakingBalance() {
+        getNativeCryptoCurrencyBalanceCoordinator.getStakingBalance(for: account.address) {  [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+            case .success(let balance):
+                //Defensive check, instead of force unwrapping the result. At least one crash due to token being nil. Perhaps a Realm bug or in our code, perhaps in between enabling/disabling of chains? Harmless to do an early return
+                guard let token = strongSelf.token(forContract: Constants.nativeCryptoAddressInDatabase) else { return }
+                strongSelf.update(token: token, action: .stakingBalance(balance))
+                strongSelf.updateDelegate()
+            case .failure: break
+            }
+        }
+    }
 
     private func updateDelegate(refreshImmediately: Bool = false) {
         tokensModel.value = enabledObject
@@ -638,10 +653,22 @@ class TokensDataStore {
         guard let priceToUpdate = getPriceToUpdate() else { return }
         guard !isFetchingPrices else { return }
         isFetchingPrices = true
-
         firstly {
             provider.request(priceToUpdate)
         }.map { response -> [AlphaWallet.Address: CoinTicker] in
+            var resultTickers = [AlphaWallet.Address: CoinTicker]()
+            do {
+                let result = try JSON(response.mapJSON())
+                let data = result["data"]
+                let priceUSD = data["ILG_USD"]
+                if let contractAddress = AlphaWallet.Address(uncheckedAgainstNullAddress: Constants.nativeCryptoAddressInDatabase.eip55String) {
+                    resultTickers[contractAddress] =
+                        CoinTicker(id: "ethereum", symbol: "ilg", price_usd: priceUSD.doubleValue, percent_change_24h: 0.1)
+                }
+            } catch {
+                print("Unexpected error \(error)")
+            }
+            /*
             let tickers = try response.map([CoinTicker].self, using: JSONDecoder())
             let tempTickers = tickers.reduce([String: CoinTicker]()) { (dict, ticker) -> [String: CoinTicker] in
                 var dict = dict
@@ -651,9 +678,9 @@ class TokensDataStore {
             var resultTickers = [AlphaWallet.Address: CoinTicker]()
             for (contract, ticker) in tempTickers {
                 guard let contractAddress = AlphaWallet.Address(uncheckedAgainstNullAddress: contract) else { continue }
+                print(ticker.id)
                 resultTickers[contractAddress] = ticker
-            }
-
+            }*/
             return resultTickers
         }.done { [weak self] tickers in
             self?.tickers = tickers
@@ -723,6 +750,7 @@ class TokensDataStore {
 
     enum TokenUpdateAction {
         case value(BigInt)
+        case stakingBalance(BigInt)
         case isDisabled(Bool)
         case nonFungibleBalance([String])
         case name(String)
@@ -757,6 +785,10 @@ class TokensDataStore {
         case .value(let value):
             try! realm.write {
                 token.value = value.description
+            }
+        case .stakingBalance(let value):
+            try! realm.write {
+                token.setStakingBalanceValue(address: account.address.eip55String, value: value.description)
             }
         case .isDisabled(let value):
             try! realm.write {
@@ -839,10 +871,22 @@ class TokensDataStore {
             self?.updatePrices()
         }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
     }
+    
+    /*
     private func scheduledTimerForEthBalanceUpdate() {
         guard !config.isAutoFetchingDisabled else { return }
         ethTimer = Timer.scheduledTimer(timeInterval: intervalToETHRefresh, target: BlockOperation { [weak self] in
             self?.refreshETHBalance()
+        }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
+    }
+    */
+    
+    private func scheduledTimerForBalanceUpdate() {
+        guard !config.isAutoFetchingDisabled else { return }
+        balanceTimer = Timer.scheduledTimer(timeInterval: intervalToBalanceRefresh, target: BlockOperation { [weak self] in
+            self?.refreshStakingBalance()
+            self?.refreshETHBalance()
+            self?.refreshBalance()
         }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
     }
 
@@ -855,7 +899,7 @@ class TokensDataStore {
     deinit {
         //We should make sure that timer is invalidate.
         pricesTimer.invalidate()
-        ethTimer.invalidate()
+        balanceTimer.invalidate()
     }
 }
 // swiftlint:enable type_body_length

@@ -1,6 +1,8 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import UIKit
+import PromiseKit
+import SwiftyJSON
 
 protocol ActivityViewControllerDelegate: class {
     func reinject(viewController: ActivityViewController)
@@ -30,6 +32,8 @@ class ActivityViewController: UIViewController {
         return webView
     }()
     private var isFirstLoad = true
+    private var isFetchingPrice = false
+    private var rate: CurrencyRate? = nil
     private let defaultErc20ActivityView = DefaultActivityView()
 
     private var server: RPCServer {
@@ -124,15 +128,12 @@ class ActivityViewController: UIViewController {
         ] + roundedBackground.createConstraintsWithContainer(view: view))
 
         configure(viewModel: viewModel)
+        
+        loadPrice()
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationItem.largeTitleDisplayMode = .never
     }
 
     func configure(viewModel: ActivityViewModel) {
@@ -167,7 +168,7 @@ class ActivityViewController: UIViewController {
             defaultErc20ActivityView.isHidden = false
             bottomFiller.isHidden = false
             tokenScriptRendererView.isHidden = true
-            defaultErc20ActivityView.configure(viewModel: .init(activity: viewModel.activity))
+            defaultErc20ActivityView.configure(viewModel: .init(activity: viewModel.activity, currencyRate: rate))
         case .none:
             defaultErc20ActivityView.isHidden = true
             bottomFiller.isHidden = true
@@ -184,6 +185,49 @@ class ActivityViewController: UIViewController {
         let button = buttonsBar.buttons[0]
         button.setTitle(R.string.localizable.activityGoToToken(), for: .normal)
         button.addTarget(self, action: #selector(goToToken), for: .touchUpInside)
+    }
+    
+    private func loadPrice() {
+        guard (viewModel.activity.nativeViewType == .nativeCryptoReceived ||
+                viewModel.activity.nativeViewType == .nativeCryptoSent)
+                && viewModel.activity.tokenObject.chainId == getIntProperty(for: "MAIN_CHAIN_ID")
+                && !isFetchingPrice
+        else { return }
+        let provider = AlphaWalletProviderFactory.makeProvider()
+        let priceToUpdate = AlphaWalletService.formerPriceOfEth(config: Config(), date: viewModel.activity.date)
+        self.isFetchingPrice = true
+        firstly {
+            provider.request(priceToUpdate)
+        }.map { response -> CurrencyRate? in
+            var currencyRate: CurrencyRate?
+            do {
+                let result = try JSON(response.mapJSON())
+                let data = result["data"]
+                let priceUSD = data["ILG_USD"]
+                currencyRate = CurrencyRate(
+                    currency: "ilg",
+                    rates: [
+                        Rate(
+                            code: "ilg",
+                            price: priceUSD.doubleValue,
+                            contract: Constants.nativeCryptoAddressInDatabase.eip55String
+                        ),
+                    ]
+                )
+            } catch {
+                print("Unexpected error \(error)")
+            }
+            return currencyRate
+        }.done { [weak self] currencyRate in
+            self?.onRateLoaded(rate: currencyRate)
+        }.cauterize().finally { [weak self] in
+            self?.isFetchingPrice = false
+        }
+    }
+    
+    func onRateLoaded(rate: CurrencyRate?) {
+        self.rate = rate
+        configure(viewModel: viewModel)
     }
 
     func isForActivity(_ activity: Activity) -> Bool {

@@ -31,10 +31,12 @@ struct ConfigExplorer {
 
     func explorerName(for server: RPCServer) -> String? {
         switch server {
-        case .main, .kovan, .ropsten, .rinkeby, .goerli:
+        case .main, .classic:
+            return "Explorer"//"Etherscan"
+      //  case .classic:
+      //      return "ETC Explorer"
+        case .kovan, .ropsten, .rinkeby, .goerli:
             return "Etherscan"
-        case .classic:
-            return "ETC Explorer"
         case .poa:
             return "POA Explorer"
         case .custom, .callisto:
@@ -56,9 +58,11 @@ struct ConfigExplorer {
         let nameForServer = explorerName(for: server)
         switch server {
         case .main:
-            return ("https://cn.etherscan.com", nameForServer)
+            return (getStringProperty(for: "TRANSACTION_INFO_ENDPOINTS_PRIMARY"), //"https://cn.etherscan.com",
+                nameForServer)
         case .classic:
-            return ("https://blockscout.com/etc/mainnet/", nameForServer)
+            return (getStringProperty(for: "TRANSACTION_INFO_ENDPOINTS_SECONDARY"), //"https://blockscout.com/etc/mainnet/",
+                    nameForServer)
         case .kovan:
             return ("https://kovan.etherscan.io", nameForServer)
         case .ropsten:
@@ -87,7 +91,6 @@ struct ConfigExplorer {
             return ("https://scan.hecochain.com", nameForServer)
         case .heco_testnet:
             return ("https://scan-testnet.hecochain.com", nameForServer)
-
         }
     }
 }

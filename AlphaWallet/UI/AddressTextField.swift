@@ -46,7 +46,7 @@ class AddressTextField: UIControl {
         button.setTitle(R.string.localizable.sendPasteButtonTitle(), for: .normal)
         button.titleLabel?.font = DataEntry.Font.accessory
         button.setTitleColor(DataEntry.Color.icon, for: .normal)
-        button.setBackgroundColor(.clear, forState: .normal)
+        button.setBackgroundColor(Colors.appBackground, forState: .normal)
         button.contentHorizontalAlignment = .right
 
         return button
@@ -58,7 +58,7 @@ class AddressTextField: UIControl {
         button.setTitle("Clear", for: .normal)
         button.titleLabel?.font = DataEntry.Font.accessory
         button.setTitleColor(DataEntry.Color.icon, for: .normal)
-        button.setBackgroundColor(.clear, forState: .normal)
+        button.setBackgroundColor(Colors.appBackground, forState: .normal)
         button.contentHorizontalAlignment = .right
 
         return button
@@ -241,11 +241,14 @@ class AddressTextField: UIControl {
     }
 
     private func makeTargetAddressRightView() -> UIView {
-        let scanQRCodeButton = Button(size: .normal, style: .system)
+        let scanQRCodeButton = Button(size: .normal, style: .borderless)
         scanQRCodeButton.translatesAutoresizingMaskIntoConstraints = false
         scanQRCodeButton.setImage(R.image.qr_code_icon(), for: .normal)
         scanQRCodeButton.addTarget(self, action: #selector(openReader), for: .touchUpInside)
-        scanQRCodeButton.setBackgroundColor(.clear, forState: .normal)
+        
+        scanQRCodeButton.setBackgroundColor(Colors.appBackground, forState: .normal)
+        scanQRCodeButton.setBackgroundColor(Colors.appBackground, forState: .selected)
+        
         //NOTE: Fix clipped shadow on textField (iPhone 5S)
         scanQRCodeButton.clipsToBounds = false
         scanQRCodeButton.layer.masksToBounds = false
@@ -253,7 +256,7 @@ class AddressTextField: UIControl {
         let targetAddressRightView = [scanQRCodeButton].asStackView(distribution: .fill)
         targetAddressRightView.clipsToBounds = false
         targetAddressRightView.layer.masksToBounds = false
-        targetAddressRightView.backgroundColor = .clear
+
         //As of iOS 13, we need to constrain the width of `rightView`
         let rightViewFittingSize = targetAddressRightView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
         NSLayoutConstraint.activate([

@@ -195,11 +195,12 @@ class TransactionConfirmationViewController: UIViewController {
                     sendFungiblesViewModel.updateBalance(.nativeCryptocurrency(balanceViewModel: balanceBaseViewModel))
                     strongSelf.generateSubviews()
                 }
-                sendFungiblesViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
-                    guard let strongSelf = self else { return }
-                    sendFungiblesViewModel.cryptoToDollarRate = cryptoToDollarRate
-                    strongSelf.generateSubviews()
-                }
+                // TODO LATER
+                //sendFungiblesViewModel.ethPrice.subscribe { [weak self] cryptoToDollarRate in
+                //    guard let strongSelf = self else { return }
+                //    sendFungiblesViewModel.cryptoToDollarRate = cryptoToDollarRate
+                //    strongSelf.generateSubviews()
+                //}
                 sendFungiblesViewModel.session.refresh(.ethBalance)
             case .ERC20Token(let token, _, _):
                 sendFungiblesViewModel.updateBalance(.erc20(token: token))
@@ -333,6 +334,8 @@ class TransactionConfirmationViewController: UIViewController {
 
     func reloadView() {
         generateSubviews()
+        let button = buttonsBar.buttons[0]
+        button.isEnabled = viewModel.txAllowed
     }
 
     func reloadViewWithGasChanges() {
@@ -376,9 +379,9 @@ fileprivate struct HeaderViewModel {
     var backgroundColor: UIColor {
         Colors.appBackground
     }
-    var icon: UIImage? {
-        return R.image.awLogoSmall()
-    }
+    //var icon: UIImage? {
+    //    return R.image.awLogoSmall()
+    //}
     var attributedTitle: NSAttributedString {
         let style = NSMutableParagraphStyle()
         style.alignment = .center
@@ -407,13 +410,13 @@ fileprivate class HeaderView: UIView {
         return titleLabel
     }()
 
-    private let iconImageView: UIImageView = {
+  /*private let iconImageView: UIImageView = {
         let imageView = UIImageView(frame: .zero)
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFit
 
         return imageView
-    }()
+    }()*/
 
     let closeButton: UIButton = {
         let button = UIButton()
@@ -430,7 +433,7 @@ fileprivate class HeaderView: UIView {
 
         addSubview(separatorLine)
         addSubview(titleLabel)
-        addSubview(iconImageView)
+        //addSubview(iconImageView)
         addSubview(closeButton)
 
         NSLayoutConstraint.activate([
@@ -439,14 +442,14 @@ fileprivate class HeaderView: UIView {
             separatorLine.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorLine.trailingAnchor.constraint(equalTo: trailingAnchor),
 
-            titleLabel.leadingAnchor.constraint(equalTo: iconImageView.trailingAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),//iconImageView.trailingAnchor),
             titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
             titleLabel.trailingAnchor.constraint(equalTo: closeButton.leadingAnchor),
 
-            iconImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            iconImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
-            iconImageView.widthAnchor.constraint(equalToConstant: 30),
-            iconImageView.heightAnchor.constraint(equalToConstant: 30),
+            //iconImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            //iconImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
+            //iconImageView.widthAnchor.constraint(equalToConstant: 30),
+            //iconImageView.heightAnchor.constraint(equalToConstant: 30),
 
             closeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             closeButton.centerYAnchor.constraint(equalTo: centerYAnchor),
@@ -457,7 +460,7 @@ fileprivate class HeaderView: UIView {
         ])
 
         titleLabel.attributedText = viewModel.attributedTitle
-        iconImageView.image = viewModel.icon
+        //iconImageView.image = viewModel.icon
         backgroundColor = viewModel.backgroundColor
     }
 

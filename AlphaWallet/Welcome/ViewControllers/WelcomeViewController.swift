@@ -31,8 +31,7 @@ class WelcomeViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(R.string.localizable.aWelcomeOnboardingCreatewalletButtonTitle(), for: .normal)
         button.titleLabel?.font = Fonts.semibold(size: 16)
-        button.setBackgroundColor(Colors.appTint, forState: .normal)
-        button.setTitleColor(Colors.appWhite, for: .normal)
+        applyVioletButtonStyle(button: button)
         return button
     }()
     private let pages: [OnboardingPageViewModel] = [

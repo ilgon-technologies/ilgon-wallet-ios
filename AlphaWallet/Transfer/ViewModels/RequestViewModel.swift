@@ -4,57 +4,70 @@ import Foundation
 import UIKit
 
 struct RequestViewModel {
-	private let account: Wallet
+    private let account: Wallet
 
-	init(account: Wallet) {
-		self.account = account
-	}
+    init(account: Wallet) {
+        self.account = account
+    }
 
-	var myAddressText: String {
-		return account.address.eip55String
-	}
+    var myAddressText: String {
+        return account.address.eip55String
+    }
+    
+    var walletName: String? {
+        return Config().walletNames[account.address]
+    }
+    
+    var walletNameFont: UIFont {
+        return Fonts.semibold(size: 20)
+    }
+    
+    var walletNameColor: UIColor {
+        return .black
+    }
 
-	var myAddress: AlphaWallet.Address {
-		return account.address
-	}
 
-	var copyWalletText: String {
-		return R.string.localizable.requestCopyWalletButtonTitle()
-	}
+    var myAddress: AlphaWallet.Address {
+        return account.address
+    }
 
-	var addressCopiedText: String {
-		return R.string.localizable.requestAddressCopiedTitle()
-	}
+    var copyWalletText: String {
+        return R.string.localizable.requestCopyWalletButtonTitle()
+    }
 
-	var backgroundColor: UIColor {
-		return Colors.appBackground
-	}
+    var addressCopiedText: String {
+        return R.string.localizable.requestAddressCopiedTitle()
+    }
 
-	var addressLabelColor: UIColor {
-		return .black
-	}
+    var backgroundColor: UIColor {
+        return Colors.appBackground
+    }
 
-	var copyButtonsFont: UIFont {
-		return Fonts.semibold(size: 17)
-	}
+    var addressLabelColor: UIColor {
+        return .black
+    }
 
-	var labelColor: UIColor? {
-		return R.color.mine()
-	}
+    var copyButtonsFont: UIFont {
+        return Fonts.semibold(size: 17)
+    }
 
-	var addressFont: UIFont {
-		return Fonts.semibold(size: 17)
-	}
+    var labelColor: UIColor? {
+        return R.color.mine()
+    }
 
-	var addressBackgroundColor: UIColor {
-		return UIColor(red: 237, green: 237, blue: 237)
-	}
+    var addressFont: UIFont {
+        return Fonts.semibold(size: 17)
+    }
 
-	var instructionFont: UIFont {
-		return Fonts.regular(size: 17)
-	}
+    var addressBackgroundColor: UIColor {
+        return UIColor(red: 237, green: 237, blue: 237)
+    }
 
-	var instructionText: String {
-		return R.string.localizable.aWalletAddressScanInstructions()
-	}
+    var instructionFont: UIFont {
+        return Fonts.regular(size: 17)
+    }
+
+    var instructionText: String {
+        return R.string.localizable.aWalletAddressScanInstructions()
+    }
 }

@@ -26,6 +26,30 @@ final class StringFormatter {
         return formatter
     }()
     
+    private let cryptoCurrencySendAmountFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.currencySymbol = ""
+        formatter.minimumFractionDigits = Constants.etherFormatterFractionDigitsSend
+        formatter.maximumFractionDigits = Constants.etherFormatterFractionDigitsSend
+        formatter.roundingMode = .down
+        formatter.decimalSeparator = Locale.current.decimalSeparator
+        //formatter.numberStyle = .currency
+
+        return formatter
+    }()
+    
+    private let alternateSendAmountFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.currencySymbol = ""
+        formatter.minimumFractionDigits = Constants.formatterFractionDigits
+        formatter.maximumFractionDigits = Constants.formatterFractionDigits
+        formatter.roundingMode = .down
+        formatter.decimalSeparator = Locale.current.decimalSeparator
+        //formatter.numberStyle = .currency
+
+        return formatter
+    }()
+    
     /// Converts a Double to a `currency String`.
     ///
     /// - Parameters:
@@ -62,13 +86,31 @@ final class StringFormatter {
     func formatter(for double: Double) -> String {
         return String(format: "%f", double)
     }
-
+    
     func alternateAmount(value: NSDecimalNumber) -> String {
         //For some reasons formatter adds trailing whitespace
         if let value = alternateAmountFormatter.string(from: value) {
             return value.trimmingCharacters(in: .whitespacesAndNewlines)
         } else {
             return value.stringValue
-        } 
+        }
+    }
+
+    func currencySendAmount(value: NSDecimalNumber) -> String {
+        //For some reasons formatter adds trailing whitespace
+        if let value = cryptoCurrencySendAmountFormatter.string(from: value) {
+            return value.trimmingCharacters(in: .whitespacesAndNewlines)
+        } else {
+            return value.stringValue
+        }
+    }
+    
+    func alternateSendAmount(value: NSDecimalNumber) -> String {
+        //For some reasons formatter adds trailing whitespace
+        if let value = alternateSendAmountFormatter.string(from: value) {
+            return value.trimmingCharacters(in: .whitespacesAndNewlines)
+        } else {
+            return value.stringValue
+        }
     }
 }

@@ -4,6 +4,7 @@ import Foundation
 import Moya
 
 enum AlphaWalletService {
+    case formerPriceOfEth(config: Config, date: Date)
     case priceOfEth(config: Config)
     case priceOfDai(config: Config)
     case getTransactions(config: Config, server: RPCServer, address: AlphaWallet.Address, startBlock: Int, endBlock: Int, sortOrder: SortOrder)
@@ -25,7 +26,9 @@ extension AlphaWalletService: TargetType {
         case .getTransactions(_, let server, _, _, _, _):
             return server.transactionInfoEndpoints
         case .priceOfEth(let config), .priceOfDai(let config):
-            return config.priceInfoEndpoints
+            return config.ilgonPriceInfo
+        case .formerPriceOfEth(let config, let date):
+            return URL(string: "\(config.ilgonPriceInfo)?timestamp=\(Int64(date.timeIntervalSince1970))")!
         case .register(let config, _), .unregister(let config, _):
             return config.priceInfoEndpoints
         case .marketplace(let config, _):
@@ -48,8 +51,8 @@ extension AlphaWalletService: TargetType {
             return "/push/register"
         case .unregister:
             return "/push/unregister"
-        case .priceOfEth:
-            return "/api/v3/coins/markets"
+        case .priceOfEth, .formerPriceOfEth:
+            return "" // /api/v3/coins/markets"
         case .priceOfDai:
             return "/api/v3/coins/markets"
         case .marketplace:
@@ -67,6 +70,7 @@ extension AlphaWalletService: TargetType {
         case .register: return .post
         case .unregister: return .delete
         case .priceOfEth: return .get
+        case .formerPriceOfEth: return .get
         case .priceOfDai: return .get
         case .marketplace: return .get
         case .gasPriceEstimate: return .get
@@ -102,11 +106,8 @@ extension AlphaWalletService: TargetType {
             return .requestJSONEncodable(device)
         case .unregister(_, let device):
             return .requestJSONEncodable(device)
-        case .priceOfEth:
-            return .requestParameters(parameters: [
-                "vs_currency": "USD",
-                "ids": "ethereum",
-            ], encoding: URLEncoding())
+        case .priceOfEth, .formerPriceOfEth:
+            return .requestPlain
         case .priceOfDai:
             return .requestParameters(parameters: [
                 "vs_currency": "USD",
@@ -136,7 +137,7 @@ extension AlphaWalletService: TargetType {
                     "client-build": Bundle.main.buildNumber ?? "",
                 ]
             }
-        case .priceOfEth, .priceOfDai, .register, .unregister, .marketplace, .gasPriceEstimate:
+        case .priceOfEth, .priceOfDai, .register, .unregister, .marketplace, .gasPriceEstimate, .formerPriceOfEth:
             return [
                 "Content-type": "application/json",
                 "client": Bundle.main.bundleIdentifier ?? "",

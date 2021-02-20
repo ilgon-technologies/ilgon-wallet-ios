@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2912CCF41F6A830700C6CBE3"
-               BuildableName = "AlphaWallet.app"
+               BuildableName = "ILGON Wallet.app"
                BlueprintName = "AlphaWallet"
                ReferencedContainer = "container:AlphaWallet.xcodeproj">
             </BuildableReference>
@@ -29,8 +29,6 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
-      <AdditionalOptions>
-      </AdditionalOptions>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -47,13 +45,11 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2912CCF41F6A830700C6CBE3"
-            BuildableName = "AlphaWallet.app"
+            BuildableName = "ILGON Wallet.app"
             BlueprintName = "AlphaWallet"
             ReferencedContainer = "container:AlphaWallet.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
-      <AdditionalOptions>
-      </AdditionalOptions>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"

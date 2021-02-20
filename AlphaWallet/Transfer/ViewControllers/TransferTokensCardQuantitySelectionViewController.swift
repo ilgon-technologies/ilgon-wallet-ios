@@ -10,7 +10,7 @@ protocol TransferTokenCardQuantitySelectionViewControllerDelegate: class, CanOpe
 class TransferTokensCardQuantitySelectionViewController: UIViewController, TokenVerifiableStatusViewController {
     private let roundedBackground = RoundedBackground()
     private let header = TokensCardViewControllerTitleHeader()
-	private let subtitleLabel = UILabel()
+    private let subtitleLabel = UILabel()
     private let quantityStepper = NumberStepper()
     private let tokenRowView: TokenRowView & UIView
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
@@ -82,9 +82,9 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
         footerBar.addSubview(buttonsBar)
 
         NSLayoutConstraint.activate([
-			header.heightAnchor.constraint(equalToConstant: 90),
+            header.heightAnchor.constraint(equalToConstant: 90),
 
-			quantityStepper.heightAnchor.constraint(equalToConstant: 50),
+            quantityStepper.heightAnchor.constraint(equalToConstant: 50),
 
             tokenRowView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tokenRowView.trailingAnchor.constraint(equalTo: view.trailingAnchor),

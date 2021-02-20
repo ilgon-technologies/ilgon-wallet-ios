@@ -255,6 +255,7 @@ class TokensViewController: UIViewController {
         super.viewWillAppear(animated)
 
         navigationController?.applyTintAdjustment()
+        navigationController?.navigationBar.prefersLargeTitles = true
         hidesBottomBarWhenPushed = false
 
         fetch()
@@ -470,7 +471,8 @@ extension TokensViewController: UITableViewDataSource {
                     currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
                     currencyAmountWithoutSymbol: session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol,
                     server: server,
-                    assetDefinitionStore: assetDefinitionStore
+                    assetDefinitionStore: assetDefinitionStore,
+                    address: session.account.address.eip55String
                 ))
                 return cell
             case .erc20:

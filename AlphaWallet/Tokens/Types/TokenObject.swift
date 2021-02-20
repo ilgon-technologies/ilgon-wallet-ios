@@ -4,6 +4,8 @@ import Foundation
 import RealmSwift
 import BigInt
 
+private var STAKING_BALANCE_MAP = [String: String]()
+
 class TokenObject: Object {
     static func generatePrimaryKey(fromContract contract: AlphaWallet.Address, server: RPCServer) -> String {
         return "\(contract.eip55String)-\(server.chainID)"
@@ -21,6 +23,20 @@ class TokenObject: Object {
     @objc dynamic var shouldDisplay: Bool = true
     var sortIndex = RealmOptional<Int>()
     let balance = List<TokenBalance>()
+    
+    func setStakingBalanceValue(address: String, value: String) {
+        let key = "\(chainId)\(address)"
+        STAKING_BALANCE_MAP[key] = value
+    }
+    
+    func getStakingBalanceValue(address: String) -> String {
+        let key = "\(chainId)\(address)"
+        if let balance = STAKING_BALANCE_MAP[key] {
+            return balance
+        } else {
+            return "0"
+        }
+    }
 
     var nonZeroBalance: [TokenBalance] {
         return Array(balance.filter { isNonZeroBalance($0.balance) })
@@ -104,6 +120,9 @@ class TokenObject: Object {
             if daiSymbol == symbol {
                 return "\(compositeName) (DAI)"
             } else {
+                if compositeName == "Ethereum" {
+                    return "SystemCoin (ILG)"
+                }
                 return "\(compositeName) (\(symbol))"
             }
         }

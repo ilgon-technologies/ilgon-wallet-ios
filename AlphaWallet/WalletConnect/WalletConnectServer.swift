@@ -57,7 +57,7 @@ class WalletConnectServer {
     }
 
     private enum Keys {
-        static let server = "AlphaWallet"
+        static let server = "ILGON Wallet" //"AlphaWallet"
     }
 
     private let walletMeta = Session.ClientMeta(name: Keys.server, description: nil, icons: [], url: URL(string: Constants.website)!)
@@ -79,8 +79,8 @@ class WalletConnectServer {
 
     init(wallet: AlphaWallet.Address) {
         self.wallet = wallet
+        //walletMeta = Session.ClientMeta(name: Keys.server, description: wallet.eip55String, icons: [], url: URL(string: Constants.website)!)
         sessions.value = server.openSessions()
-
         let handler = requestHandler
         server.register(handler: handler)
     }
@@ -94,9 +94,6 @@ class WalletConnectServer {
     }
 
     func disconnect(session: Session) throws {
-        //NOTE: for some reasons completion handler doesn't get called, when we do disconnect, for this we remove session before do disconnect
-        removeSession(for: session.url)
-
         try server.disconnect(from: session)
     }
 

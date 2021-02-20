@@ -17,7 +17,6 @@ struct ConfirmSignMessageViewControllerViewModel {
 	var headerTitle: String {
         return R.string.localizable.confirmSignMessage()
 	}
-
     var subtitle: String {
         switch message {
         case .message, .personalMessage, .typedMessage:
@@ -45,10 +44,10 @@ struct ConfirmSignMessageViewControllerViewModel {
     }
 
     var actionButtonBackgroundColor: UIColor {
-        return Colors.appActionButtonGreen
+        return Colors.ilgoinButtonPrimaryColor
     }
 
-    var actionButtonTitleFont: UIFont {
+     var actionButtonTitleFont: UIFont {
         return Fonts.regular(size: 20)
     }
 

@@ -5,7 +5,7 @@ import Foundation
 @testable import AlphaWallet
 import XCTest
 import BigInt
-import WalletCore
+import TrustWalletCore
 
 class CreateRedeemTests: XCTestCase {
     let keyStore = FakeEtherKeystore()
@@ -17,6 +17,7 @@ class CreateRedeemTests: XCTestCase {
         token.append(2)
         let account = keyStore.createAccount()
         let message = CreateRedeem(token: TokenObject()).redeemMessage(tokenIds: token).0
+        print(message)
         let data = message.data(using: String.Encoding.utf8)
 
         let signature = try! keyStore.signMessageData(data!, for: account.dematerialize())

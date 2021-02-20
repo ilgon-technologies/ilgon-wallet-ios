@@ -10,7 +10,7 @@ enum TransactionConfirmationViewModel {
     case sendNftTransaction(SendNftTransactionViewModel)
     case claimPaidErc875MagicLink(ClaimPaidErc875MagicLinkViewModel)
 
-    init(configurator: TransactionConfigurator, configuration: TransactionConfirmationConfiguration) {
+    init(configurator: TransactionConfigurator, configuration: TransactionConfirmationConfiguration, deductWithTxFee: Bool) {
         switch configuration {
         case .tokenScriptTransaction(_, let contract, _, let functionCallMetaData, let ethPrice):
             self = .tokenScriptTransaction(.init(address: contract, configurator: configurator, functionCallMetaData: functionCallMetaData, ethPrice: ethPrice))
@@ -18,12 +18,21 @@ enum TransactionConfirmationViewModel {
             self = .dappTransaction(.init(configurator: configurator, ethPrice: ethPrice))
         case .sendFungiblesTransaction(_, _, let assetDefinitionStore, let amount, let ethPrice):
             let resolver = RecipientResolver(address: configurator.transaction.recipient)
-            self = .sendFungiblesTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: resolver, amount: amount, ethPrice: ethPrice))
+            self = .sendFungiblesTransaction(.init(configurator: configurator, assetDefinitionStore: assetDefinitionStore, recipientResolver: resolver, amount: amount, ethPrice: ethPrice, deductWithTxFee: deductWithTxFee))
         case .sendNftTransaction(_, _, let ethPrice, let tokenInstanceName):
             let resolver = RecipientResolver(address: configurator.transaction.recipient)
             self = .sendNftTransaction(.init(configurator: configurator, recipientResolver: resolver, ethPrice: ethPrice, tokenInstanceName: tokenInstanceName))
         case .claimPaidErc875MagicLink(_, _, let price, let ethPrice, let numberOfTokens):
             self = .claimPaidErc875MagicLink(.init(configurator: configurator, price: price, ethPrice: ethPrice, numberOfTokens: numberOfTokens))
+        }
+    }
+    
+    var txAllowed: Bool {
+        switch self {
+        case .sendFungiblesTransaction(let viewModel):
+            return viewModel.txAllowed
+        default:
+            return true
         }
     }
 
@@ -134,12 +143,18 @@ extension TransactionConfirmationViewModel {
         let session: WalletSession
         let recipientResolver: RecipientResolver
         let ethPrice: Subscribable<Double>
+        let deductWithTxFee: Bool
 
         var sections: [Section] {
             Section.allCases
         }
+        
+        var txAllowed: Bool {
+            configurator.txAllowed(deductWithTxFee: deductWithTxFee)
+        }
 
-        init(configurator: TransactionConfigurator, assetDefinitionStore: AssetDefinitionStore, recipientResolver: RecipientResolver, amount: String, ethPrice: Subscribable<Double>) {
+        init(configurator: TransactionConfigurator, assetDefinitionStore: AssetDefinitionStore, recipientResolver: RecipientResolver, amount: String, ethPrice: Subscribable<Double>, deductWithTxFee: Bool) {
+            self.deductWithTxFee = deductWithTxFee
             self.configurator = configurator
             self.transactionType = configurator.transaction.transactionType
             self.session = configurator.session
@@ -155,7 +170,10 @@ extension TransactionConfirmationViewModel {
                 guard let viewModel = balanceViewModel else { return }
                 balance = "\(viewModel.amountShort) \(viewModel.symbol)"
                 if let balance = session.balanceCoordinator.balance?.value {
-                    let newAmountShort = EtherNumberFormatter.short.string(from: balance - configurator.transaction.value)
+                    var newAmount = balance - configurator.transaction.value
+                        - (deductWithTxFee ? 0 : configurator.fee)
+                    if newAmount < 0 { newAmount = 0 }
+                    let newAmountShort = EtherNumberFormatter.short.string(from: newAmount)
                     newBalance = R.string.localizable.transactionConfirmationSendSectionBalanceNewTitle(newAmountShort, viewModel.symbol)
                 }
             case .erc20(let token):
@@ -172,8 +190,10 @@ extension TransactionConfirmationViewModel {
         var formattedAmountValue: String {
             switch transactionType {
             case .nativeCryptocurrency(let token, _, _):
+                let amountMod = deductWithTxFee ? EtherNumberFormatter.plain.string(from: configurator.transaction.value - configurator.fee)
+                    : EtherNumberFormatter.plain.string(from: configurator.transaction.value) //amount
                 let cryptoToDollarSymbol = Constants.Currency.usd
-                let double = Double(amount) ?? 0
+                let double = Double(amountMod) ?? 0
                 if let cryptoToDollarRate = cryptoToDollarRate {
                     let cryptoToDollarValue = StringFormatter().currency(with: double * cryptoToDollarRate, and: cryptoToDollarSymbol)
                     return "\(double) \(token.symbol) ≈ \(cryptoToDollarValue) \(cryptoToDollarSymbol)"

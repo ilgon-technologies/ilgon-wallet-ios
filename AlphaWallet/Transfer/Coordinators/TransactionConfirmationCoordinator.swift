@@ -63,7 +63,7 @@ protocol TransactionConfirmationCoordinatorDelegate: class {
 class TransactionConfirmationCoordinator: Coordinator {
     private let configuration: TransactionConfirmationConfiguration
     let presentationNavigationController: UINavigationController
-    private lazy var viewModel: TransactionConfirmationViewModel = .init(configurator: configurator, configuration: configuration)
+    private lazy var viewModel: TransactionConfirmationViewModel = .init(configurator: configurator, configuration: configuration, deductWithTxFee: deductWithTxFee)
     private lazy var confirmationViewController: TransactionConfirmationViewController = {
         let controller = TransactionConfirmationViewController(viewModel: viewModel)
         controller.delegate = self
@@ -81,9 +81,11 @@ class TransactionConfirmationCoordinator: Coordinator {
     }()
 
     var coordinators: [Coordinator] = []
+    let deductWithTxFee: Bool
     weak var delegate: TransactionConfirmationCoordinatorDelegate?
 
-    init(navigationController: UINavigationController, session: WalletSession, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationConfiguration, analyticsCoordinator: AnalyticsCoordinator?) {
+    init(navigationController: UINavigationController, session: WalletSession, transaction: UnconfirmedTransaction, configuration: TransactionConfirmationConfiguration, analyticsCoordinator: AnalyticsCoordinator?, deductWithTxFee: Bool = false) {
+        self.deductWithTxFee = deductWithTxFee
         configurator = TransactionConfigurator(session: session, transaction: transaction)
         self.configuration = configuration
         self.analyticsCoordinator = analyticsCoordinator
@@ -151,7 +153,7 @@ extension TransactionConfirmationCoordinator: TransactionConfirmationViewControl
 
     private func sendTransaction() -> Promise<ConfirmResult> {
         let coordinator = SendTransactionCoordinator(session: configurator.session, keystore: configuration.keystore, confirmType: configuration.confirmType)
-        let transaction = configurator.formUnsignedTransaction()
+        let transaction = configurator.formUnsignedTransaction(deductWithTxFee: deductWithTxFee)
         return coordinator.send(transaction: transaction)
     }
 

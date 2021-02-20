@@ -123,6 +123,16 @@ class TransactionsStorage {
         try! realm.commitWrite()
         return transaction
     }
+    
+    @discardableResult
+    func update(state: TransactionState, blockNumber: Int, gasUsed: String, for transaction: Transaction) -> Transaction {
+        realm.beginWrite()
+        transaction.internalState = state.rawValue
+        transaction.blockNumber = blockNumber
+        transaction.gasUsed = gasUsed
+        try! realm.commitWrite()
+        return transaction
+    }
 
     func removeTransactions(for states: [TransactionState]) {
         //TODO improve filtering/matching performance

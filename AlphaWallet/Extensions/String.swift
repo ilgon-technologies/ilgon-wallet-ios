@@ -51,19 +51,11 @@ extension String {
             do {
                 return try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
             } catch {
+                print(error.localizedDescription)
                 return [:]
             }
         }
         return [:]
-    }
-
-    var has0xPrefix: Bool {
-        return hasPrefix("0x")
-    }
-
-    var isPrivateKey: Bool {
-        let value = self.drop0x.components(separatedBy: " ").joined()
-        return value.count == 64
     }
 
     var drop0x: String {
@@ -71,6 +63,15 @@ extension String {
             return String(dropFirst(2))
         }
         return self
+    }
+    
+    var has0xPrefix: Bool {
+        return hasPrefix("0x")
+    }
+
+    var isPrivateKey: Bool {
+        let value = self.drop0x.components(separatedBy: " ").joined()
+        return value.count == 64
     }
 
     var add0x: String {

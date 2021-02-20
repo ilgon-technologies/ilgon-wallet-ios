@@ -92,12 +92,35 @@ struct SendViewModel {
         case .nativeCryptocurrency:
             if let balance = session.balance {
                 let value = EtherNumberFormatter.plain.string(from: balance.value)
+                if transactionType.symbol == "ETH" {
+                   return R.string.localizable.sendAvailable("\(value) ILG")
+                }
                 return R.string.localizable.sendAvailable("\(value) \(transactionType.symbol)")
             }
         case .ERC20Token(let token, _, _):
             let value = EtherNumberFormatter.plain.string(from: token.valueBigInt, decimals: token.decimals)
             return R.string.localizable.sendAvailable("\(value) \(transactionType.symbol)")
         case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
+            break
+        }
+
+        return nil
+    }
+    
+    var availableLabelTextWithoutSymbol: String? {
+        switch transactionType {
+        case .nativeCryptocurrency:
+            if let balance = session.balance {
+                let value = EtherNumberFormatter.plain.string(from: balance.value)
+                return value
+                
+            }
+        case .ERC20Token(let token, _, _):
+            let value = EtherNumberFormatter.plain.string(from: token.valueBigInt, decimals: token.decimals)
+            return value
+        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder:
+            break
+        default:
             break
         }
 
@@ -117,7 +140,32 @@ struct SendViewModel {
         return true
     }
 
-    func validatedAmount(value amountString: String, checkIfGreaterThanZero: Bool = true) -> BigInt? {
+    /*func validatedAmount(value amount: NSDecimalNumber,
+                         checkIfGreaterThanZero: Bool = true) -> BigInt? {
+        let parsedValue = BigInt("\(amount)")
+        guard let value = parsedValue, checkIfGreaterThanZero ? value > 0 : true else {
+            return nil
+        }
+
+        switch transactionType {
+        case .nativeCryptocurrency:
+            if let balance = session.balance, balance.value < value {
+                return nil
+            }
+        case .ERC20Token(let token, _, _):
+            if let tokenBalance = storage.token(forContract: token.contractAddress)?.valueBigInt, tokenBalance < value {
+                return nil
+            }
+        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .tokenScript, .claimPaidErc875MagicLink:
+            break
+        }
+
+        return value
+    }*/
+    
+    func validatedAmount(value amountString: String,
+                         checkIfGreaterThanZero: Bool = true) -> BigInt? {
+        
         let parsedValue: BigInt? = {
             switch transactionType {
             case .nativeCryptocurrency, .dapp, .tokenScript, .claimPaidErc875MagicLink:

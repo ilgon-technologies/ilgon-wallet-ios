@@ -23,15 +23,19 @@ class ActivitiesViewController: UIViewController {
     var paymentType: PaymentFlow?
     weak var delegate: ActivitiesViewControllerDelegate?
 
-    init(viewModel: ActivitiesViewModel, wallet: AlphaWallet.Address, sessions: ServerDictionary<WalletSession>, tokensStorages: ServerDictionary<TokensDataStore>) {
+    init(viewModel: ActivitiesViewModel, wallet: AlphaWallet.Address, sessions: ServerDictionary<WalletSession>, tokensStorages: ServerDictionary<TokensDataStore>, name: String?) {
         self.viewModel = viewModel
         self.wallet = wallet
         self.sessions = sessions
         self.tokensStorages = tokensStorages
         searchController = UISearchController(searchResultsController: nil)
         super.init(nibName: nil, bundle: nil)
-
-        title = R.string.localizable.activityTabbarItemTitle()
+        
+        if let name = name {
+            title = "\(R.string.localizable.activityTabbarItemTitle()): \(name)"
+        } else {
+            title = R.string.localizable.activityTabbarItemTitle()
+        }
 
         view.backgroundColor = self.viewModel.backgroundColor
 
@@ -81,7 +85,6 @@ class ActivitiesViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         keyboardChecker.viewWillAppear()
-        navigationItem.largeTitleDisplayMode = .always
     }
 
     override func viewWillDisappear(_ animated: Bool) {

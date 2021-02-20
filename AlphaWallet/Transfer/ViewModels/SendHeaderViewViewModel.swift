@@ -6,6 +6,7 @@ struct SendHeaderViewViewModel {
     private let token: TokenObject
     private let transactionType: TransactionType
     let server: RPCServer
+    let showCurrency: Bool
     var title: String
     var ticker: CoinTicker?
     var currencyAmount: String?
@@ -15,6 +16,7 @@ struct SendHeaderViewViewModel {
         self.server = server
         self.token = token
         self.transactionType = transactionType
+        showCurrency = token.symbol.lowercased() == "ilg"
         title = ""
         ticker = nil
         currencyAmount = nil
@@ -77,25 +79,27 @@ struct SendHeaderViewViewModel {
     }
 
     private var marketPriceAttributedString: NSAttributedString? {
-        guard let marketPrice = marketPriceValue, let valuePercentageChange = valuePercentageChangeValue else {
+        guard let marketPrice = marketPriceValue//, let valuePercentageChange = valuePercentageChangeValue
+        else {
             return nil
         }
 
-        let string = R.string.localizable.aWalletTokenMarketPrice(marketPrice, valuePercentageChange)
+        let string = "Market Price: \(marketPrice)"
+        //R.string.localizable.aWalletTokenMarketPrice(marketPrice, valuePercentageChange)
 
-        guard let valuePercentageChangeRange = string.range(of: valuePercentageChange) else { return nil }
+        //guard let valuePercentageChangeRange = string.range(of: valuePercentageChange) else { return nil }
 
         let mutableAttributedString = NSMutableAttributedString(string: string, attributes: [
             .font: Screen.TokenCard.Font.placeholderLabel,
             .foregroundColor: R.color.dove()!
         ])
-
+/*
         let range = NSRange(valuePercentageChangeRange, in: string)
         mutableAttributedString.setAttributes([
             .font: Fonts.semibold(size: ScreenChecker().isNarrowScreen ? 14 : 17),
             .foregroundColor: Screen.TokenCard.Color.valueChangeValue(ticker: ticker)
         ], range: range)
-
+*/
         return mutableAttributedString
     }
 

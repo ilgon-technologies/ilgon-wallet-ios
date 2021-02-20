@@ -47,6 +47,8 @@ class SettingTableViewCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         selectionStyle = .none
         accessoryType = .disclosureIndicator
+        
+        backgroundColor = Colors.appBackground
 
         let stackView = [
             titleLabel,

@@ -1,0 +1,21 @@
+//
+//  TestConfig.xcconfig
+//  AlphaWallet
+//
+//  Created by Jili Bernadett on 2021. 01. 27..
+//
+
+SECONDARY_RPC_URL = wallet.ilgointest.e-diploma.org/rpc/ilgtest/
+MAIN_RPC_URL = wallet.ilgoindev.e-diploma.org/rpc/eth/
+SECONDARY_NETWORK_NAME = ILGON Test
+MAIN_NETWORK_NAME = ILGON Dev
+SECONDARY_TX_URL = explorer.ilgointest.e-diploma.org/
+MAIN_TX_URL = wallet.ilgoindev.e-diploma.org/rpc/eth/
+SECONDARY_CHAIN_ID = 1768712052
+MAIN_CHAIN_ID = 1768711028
+ETHERSCAN_URL_MAIN = explorer.ilgoindev.e-diploma.org/tx/
+ETHERSCAN_URL_SECONDARY = explorer.ilgointest.e-diploma.org/tx/
+MAIN_STAKING_CONTRACT_ADDRESS =
+SECONDARY_STAKING_CONTRACT_ADDRESS = $()0x933cdac7b0bD9519C84e8F1F74Be51b07921e596
+TRANSACTION_INFO_ENDPOINTS_PRIMARY = explorer.ilgoindev.e-diploma.org/
+TRANSACTION_INFO_ENDPOINTS_SECONDARY = explorer.ilgointest.e-diploma.org/

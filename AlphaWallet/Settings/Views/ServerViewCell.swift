@@ -26,6 +26,8 @@ class ServerViewCell: UITableViewCell {
 
     func configure(viewModel: ServerViewModel) {
         selectionStyle = .default
+        
+        tintColor = Colors.ilgoinButtonPrimaryColor
         backgroundColor = viewModel.backgroundColor
 
         accessoryType = viewModel.accessoryType

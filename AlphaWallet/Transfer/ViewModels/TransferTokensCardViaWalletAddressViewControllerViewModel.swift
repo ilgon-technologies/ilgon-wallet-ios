@@ -10,7 +10,7 @@ struct TransferTokensCardViaWalletAddressViewControllerViewModel {
 
     var headerTitle: String {
         let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
-		return R.string.localizable.aWalletTokenTransferSelectQuantityTitle(tokenTypeName)
+        return R.string.localizable.aWalletTokenTransferSelectQuantityTitle(tokenTypeName)
     }
 
     var backgroundColor: UIColor {
@@ -25,3 +25,4 @@ struct TransferTokensCardViaWalletAddressViewControllerViewModel {
         return R.color.dove()!
     }
 }
+

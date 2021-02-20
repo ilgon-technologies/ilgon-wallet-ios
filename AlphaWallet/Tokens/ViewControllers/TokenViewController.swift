@@ -7,7 +7,6 @@ import PromiseKit
 
 protocol TokenViewControllerDelegate: class, CanOpenURL {
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, inViewController viewController: TokenViewController)
-    func shouldOpen(url: URL, onServer server: RPCServer, forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController)
     func didTapSend(forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController)
     func didTapReceive(forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController)
     func didTap(transaction: Transaction, inViewController viewController: TokenViewController)
@@ -76,15 +75,20 @@ class TokenViewController: UIViewController {
             self?.refreshHeaderView()
         }
         RunLoop.main.add(headerRefreshTimer, forMode: .default)
-        navigationItem.largeTitleDisplayMode = .never
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.prefersLargeTitles = false
+    }
+
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        tableView.backgroundColor = Colors.appBackground
         guard let buttonsBarHolder = buttonsBar.superview else {
             tableView.contentInset = .zero
             return
@@ -227,8 +231,6 @@ class TokenViewController: UIViewController {
                 } else {
                     delegate?.didTap(action: action, transactionType: transactionType, viewController: self)
                 }
-            case .xDaiBridge:
-                delegate?.shouldOpen(url: Constants.xDaiBridge, onServer: .xDai, forTransactionType: transactionType, inViewController: self)
             }
             break
         }
@@ -319,3 +321,4 @@ extension TokenViewController: TokenViewControllerHeaderViewDelegate {
         header.sendHeaderView.configure(viewModel: headerViewModel)
     }
 }
+

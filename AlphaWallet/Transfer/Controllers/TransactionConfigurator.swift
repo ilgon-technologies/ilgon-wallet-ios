@@ -83,8 +83,8 @@ class TransactionConfigurator {
         switch selectedConfigurationType {
         case .standard:
             return configurations.standard
-        case .slow, .fast, .rapid:
-            return configurations[selectedConfigurationType]!
+        //case .slow, .fast, .rapid:
+        //    return configurations[selectedConfigurationType]!
         case .custom:
             return configurations.custom
         }
@@ -123,6 +123,23 @@ class TransactionConfigurator {
         self.transaction = transaction
         self.configurations = .init(standard: TransactionConfigurator.createConfiguration(server: session.server, transaction: transaction, account: account))
     }
+    
+    var fee: BigInt {
+        currentConfiguration.gasPrice * currentConfiguration.gasLimit
+    }
+    
+    func txAllowed(deductWithTxFee: Bool) -> Bool {
+        switch transaction.transactionType {
+        case .nativeCryptocurrency:
+            if deductWithTxFee {
+                return fee <= (session.balance?.value ?? 0)
+            } else {
+                return fee + transaction.value <= (session.balance?.value ?? 0)
+            }
+        default:
+            return true
+        }
+    }
 
     private func estimateGasLimit() {
         guard let toAddress = toAddress else { return }
@@ -149,7 +166,7 @@ class TransactionConfigurator {
             var defaultConfig = self.configurations.standard
             defaultConfig.setEstimated(gasLimit: gasLimit)
             self.configurations.standard = defaultConfig
-
+/*
             //Careful to not create if they don't exist
             for each: TransactionConfigurationType  in [.slow, .fast, .rapid] {
                 if var config = self.configurations[each] {
@@ -157,28 +174,28 @@ class TransactionConfigurator {
                     self.configurations[each] = config
                 }
             }
-
+*/
             self.delegate?.gasLimitEstimateUpdated(to: gasLimit, in: self)
         }.cauterize()
     }
-
+/*
     private func estimateGasPrice() {
         firstly {
             estimateGasPrice(server: session.server)
         }.done { estimates in
             let standard = estimates.standard
             var customConfig = self.configurations.custom
-            customConfig.setEstimated(gasPrice: standard)
+            //customConfig.setEstimated(gasPrice: standard)
             self.configurations.custom = customConfig
             var defaultConfig = self.configurations.standard
-            defaultConfig.setEstimated(gasPrice: standard)
+            //defaultConfig.setEstimated(gasPrice: standard)
             self.configurations.standard = defaultConfig
 
             for each: TransactionConfigurationType  in [.slow, .fast, .rapid] {
                 guard let estimate = estimates[each] else { continue }
                 //Since there's a price estimate, we want to add that config if it's missing
                 var config = self.configurations[each] ?? defaultConfig
-                config.setEstimated(gasPrice: estimate)
+                //config.setEstimated(gasPrice: estimate)
                 self.configurations[each] = config
             }
 
@@ -200,7 +217,7 @@ class TransactionConfigurator {
             return Promise(estimateGasPriceForUseRpcNode(server: server))
         }
     }
-
+     
     private func estimateGasPriceForEthMainnetUsingThirdPartyApi() -> Promise<GasEstimates> {
         let estimator = GasNowGasPriceEstimator()
         return firstly {
@@ -213,7 +230,7 @@ class TransactionConfigurator {
             ])
         }
     }
-
+*/
     private func estimateGasPriceForXDai() -> Promise<GasEstimates> {
         //xDAI node returns a much higher gas price than necessary so if it is xDAI simply return 1 Gwei
         .value(.init(standard: GasPriceConfiguration.xDaiGasPrice))
@@ -255,6 +272,7 @@ class TransactionConfigurator {
     }
 
     func gasPriceWarning(forConfiguration configuration: TransactionConfiguration) -> GasPriceWarning? {
+        /*
         if let fastestConfig = configurations.fastestThirdPartyConfiguration, configuration.gasPrice > fastestConfig.gasPrice {
             return .tooHighCustomGasPrice
         }
@@ -269,12 +287,13 @@ class TransactionConfigurator {
             }
         case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom, .heco, .heco_testnet:
             break
-        }
+        }*/
         return nil
     }
 
     private static func computeDefaultGasPrice(server: RPCServer, transaction: UnconfirmedTransaction) -> BigInt {
-        switch server {
+        return CUSTOM_GAS_PRICE
+        /*switch server {
         case .xDai:
             //xdai transactions are always 1 gwei in gasPrice
             return GasPriceConfiguration.xDaiGasPrice
@@ -285,7 +304,7 @@ class TransactionConfigurator {
                 let defaultGasPrice = min(max(transaction.gasPrice ?? GasPriceConfiguration.defaultPrice, GasPriceConfiguration.minPrice), GasPriceConfiguration.maxPrice)
                 return defaultGasPrice
             }
-        }
+        }*/
     }
 
     private static func createConfiguration(server: RPCServer, transaction: UnconfirmedTransaction, gasLimit: BigInt, data: Data) -> TransactionConfiguration {
@@ -374,7 +393,7 @@ class TransactionConfigurator {
     }
 
     func start() {
-        estimateGasPrice()
+        //estimateGasPrice()
         if !isGasLimitSpecifiedByTransaction {
             estimateGasLimit()
         }
@@ -392,9 +411,16 @@ class TransactionConfigurator {
         }.cauterize()
     }
 
-    func formUnsignedTransaction() -> UnsignedTransaction {
-        UnsignedTransaction(
-            value: value,
+    func formUnsignedTransaction(deductWithTxFee: Bool) -> UnsignedTransaction {
+        let finalValue: BigInt
+        switch transaction.transactionType {
+        case .nativeCryptocurrency:
+            finalValue = deductWithTxFee ? value - fee : value
+        default:
+            finalValue = value
+        }
+        return UnsignedTransaction(
+            value: finalValue,
             account: account,
             to: toAddress,
             nonce: currentConfiguration.nonce ?? -1,

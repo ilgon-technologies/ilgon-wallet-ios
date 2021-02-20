@@ -13,7 +13,7 @@ extension TokensViewController {
                     }
                     return
                 }
-                filterView.backgroundColor = Colors.appWhite
+                filterView.backgroundColor = Colors.appBackground
                 filterView.translatesAutoresizingMaskIntoConstraints = false
                 contentView.addSubview(filterView)
                 NSLayoutConstraint.activate([

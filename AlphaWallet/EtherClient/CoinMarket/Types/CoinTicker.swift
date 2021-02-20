@@ -8,9 +8,9 @@ struct CoinTicker: Codable {
         case price_usd = "current_price", percent_change_24h = "price_change_percentage_24h", id = "id", symbol = "symbol", image = "image"
     }
 
-    private let id: String
-    private let symbol: String
-    private let image: String = ""
+    let id: String
+    let symbol: String
+    let image: String = ""
 
     let price_usd: Double
     let percent_change_24h: Double

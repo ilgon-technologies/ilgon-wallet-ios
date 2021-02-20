@@ -11,7 +11,7 @@ extension Dictionary where Key: ExpressibleByStringLiteral, Value: Any {
                     return string
                 }
             } catch {
-                //no op
+                print(error)
             }
         }
         return nil

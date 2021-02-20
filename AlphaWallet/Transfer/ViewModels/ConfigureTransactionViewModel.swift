@@ -14,9 +14,9 @@ struct ConfigureTransactionViewModel {
     private var server: RPCServer {
         configurator.session.server
     }
-    private var currencyRate: CurrencyRate? {
-        configurator.session.balanceCoordinator.currencyRate
-    }
+    //private var currencyRate: CurrencyRate? {
+    //    configurator.session.balanceCoordinator.currencyRate
+    //}
 
     var selectedConfigurationType: TransactionConfigurationType
     var configurationToEdit: EditedTransactionConfiguration {
@@ -43,7 +43,8 @@ struct ConfigureTransactionViewModel {
     }
 
     var gasViewModel: GasViewModel {
-        return GasViewModel(fee: totalFee, symbol: server.symbol, currencyRate: currencyRate, formatter: fullFormatter)
+        return GasViewModel(fee: totalFee, symbol: server.symbol, currencyRate: nil,//currencyRate,
+                            formatter: fullFormatter)
     }
 
     var backgroundColor: UIColor {
@@ -71,13 +72,13 @@ struct ConfigureTransactionViewModel {
         )
     }
 
-    var gasPriceSliderViewModel: SliderTableViewCellViewModel {
-        return .init(
-            value: configurationToEdit.gasPriceRawValue,
-            minimumValue: configurationToEdit.defaultMinGasPrice,
-            maximumValue: configurationToEdit.maxGasPrice
-        )
-    }
+    //var gasPriceSliderViewModel: SliderTableViewCellViewModel {
+    //    return .init(
+    //        value: configurationToEdit.gasPriceRawValue,
+    //        minimumValue: configurationToEdit.defaultMinGasPrice,
+    //        maximumValue: configurationToEdit.maxGasPrice
+    //    )
+    //}
 
     var nonceViewModel: TextFieldTableViewCellViewModel {
         let placeholder = R.string.localizable.configureTransactionNonceLabelTitle()
@@ -100,10 +101,11 @@ struct ConfigureTransactionViewModel {
 
     var sections: [Section] {
         switch selectedConfigurationType {
-        case .standard, .slow, .fast, .rapid:
+        case .standard://, .slow, .fast, .rapid:
             return [.configurationTypes]
         case .custom:
-            return [.configurationTypes, .gasPrice, .gasLimit]
+            return [.configurationTypes, //.gasPrice,
+                    .gasLimit]
         }
     }
 
@@ -151,7 +153,7 @@ struct ConfigureTransactionViewModel {
 
     static func sortedConfigurationTypes(fromConfigurations configurations: TransactionConfigurations) -> [TransactionConfigurationType] {
         let available = configurations.types
-        let all: [TransactionConfigurationType] = [.slow, .standard, .fast, .rapid, .custom]
+        let all: [TransactionConfigurationType] = [.standard, .custom]//.slow, .standard, .fast, .rapid, .custom]
         return all.filter { available.contains($0) }
     }
 

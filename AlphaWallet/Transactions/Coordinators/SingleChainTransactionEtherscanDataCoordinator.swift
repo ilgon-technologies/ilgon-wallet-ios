@@ -145,10 +145,14 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
         let request = GetTransactionRequest(hash: transaction.id)
         firstly {
             Session.send(EtherServiceRequest(server: session.server, batch: BatchFactory().create(request)))
-        }.done { _ in
-            if transaction.date > Date().addingTimeInterval(TransactionDataCoordinator.delayedTransactionInternalSeconds) {
-                self.update(state: .completed, for: transaction)
+        }.done { result in
+            //if transaction.date > Date().addingTimeInterval(TransactionDataCoordinator.delayedTransactionInternalSeconds) {
+            //                self.update(state: .completed, for: transaction)
+            //                self.update(items: [transaction])
+            //            }
+            if transaction.date.addingTimeInterval(TransactionDataCoordinator.delayedTransactionInternalSeconds) < Date() {
                 self.update(items: [transaction])
+                self.update(state: .completed, blockNumber: Int(result.blockNumber) ?? 0, gasUsed: result.gas, for: transaction)
             }
         }.catch { error in
             guard let error = error as? SessionTaskError else { return }
@@ -160,9 +164,12 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
                 case .responseError:
                     self.delete(transactions: [transaction])
                 case .resultObjectParseError:
-                    if transaction.date > Date().addingTimeInterval(TransactionDataCoordinator.deleteMissingInternalSeconds) {
+                    if transaction.date.addingTimeInterval(TransactionDataCoordinator.deleteMissingInternalSeconds) > Date() {
                         self.update(state: .failed, for: transaction)
                     }
+                    //if transaction.date > Date().addingTimeInterval(TransactionDataCoordinator.deleteMissingInternalSeconds) {
+                    //    self.update(state: .failed, for: transaction)
+                    //}
                 case .responseNotFound, .errorObjectParseError, .unsupportedVersion, .unexpectedTypeObject, .missingBothResultAndError, .nonArrayResponse:
                     break
                 }
@@ -179,6 +186,11 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
 
     private func update(state: TransactionState, for transaction: Transaction) {
         storage.update(state: state, for: transaction)
+        delegate?.handleUpdateItems(inCoordinator: self)
+    }
+    
+    private func update(state: TransactionState, blockNumber: Int, gasUsed: String, for transaction: Transaction) {
+        storage.update(state: state, blockNumber: blockNumber, gasUsed: gasUsed, for: transaction)
         delegate?.handleUpdateItems(inCoordinator: self)
     }
 
@@ -256,6 +268,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
     }
 
     private func notifyUserEtherReceived(for transactionId: String, amount: String) {
+        guard Config.allowNotifications else { return }
         let notificationCenter = UNUserNotificationCenter.current()
         let content = UNMutableNotificationContent()
         switch session.server {
@@ -270,45 +283,45 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
         notificationCenter.add(request)
     }
 
-    private func fetchTransactions(for address: AlphaWallet.Address, startBlock: Int, endBlock: Int = 999_999_999, sortOrder: AlphaWalletService.SortOrder) -> Promise<[Transaction]> {
+     private func fetchTransactions(for address: AlphaWallet.Address, startBlock: Int, endBlock: Int = 999_999_999, sortOrder: AlphaWalletService.SortOrder) -> Promise<[Transaction]> {
 
-        return alphaWalletProvider.request(.getTransactions(
-            config: session.config,
-            server: session.server,
-            address: address,
-            startBlock: startBlock,
-            endBlock: endBlock,
-            sortOrder: sortOrder
-        )).map {
-            try $0.map(ArrayResponse<RawTransaction>.self).result.map {
-                Transaction.from(transaction: $0, tokensStorage: self.tokensStorage)
-            }
-        }.then {
-            when(fulfilled: $0).compactMap {
-                $0.compactMap { $0 }
-            }
-        }
-    }
+         return alphaWalletProvider.request(.getTransactions(
+             config: session.config,
+             server: session.server,
+             address: address,
+             startBlock: startBlock,
+             endBlock: endBlock,
+             sortOrder: sortOrder
+         )).map {
+             try $0.map(ArrayResponse<RawTransaction>.self).result.map {
+                 Transaction.from(transaction: $0, tokensStorage: self.tokensStorage)
+             }
+         }.then {
+             when(fulfilled: $0).compactMap {
+                 $0.compactMap { $0 }
+             }
+         }
+     }
 
-    private func fetchOlderTransactions(for address: AlphaWallet.Address) {
-        guard let oldestCachedTransaction = storage.completedObjects.last else { return }
+     private func fetchOlderTransactions(for address: AlphaWallet.Address) {
+         guard let oldestCachedTransaction = storage.completedObjects.last else { return }
 
-        let promise = fetchTransactions(for: address, startBlock: 1, endBlock: oldestCachedTransaction.blockNumber - 1, sortOrder: .desc)
-        promise.done { [weak self] transactions in
-            self?.update(items: transactions)
+         let promise = fetchTransactions(for: address, startBlock: 1, endBlock: oldestCachedTransaction.blockNumber - 1, sortOrder: .desc)
+         promise.done { [weak self] transactions in
+             self?.update(items: transactions)
 
-            if !transactions.isEmpty {
-                let timeout = DispatchTime.now() + .milliseconds(300)
-                DispatchQueue.main.asyncAfter(deadline: timeout) { [weak self] in
-                    self?.fetchOlderTransactions(for: address)
-                }
-            } else {
-                self?.transactionsTracker.fetchingState = .done
-            }
-        }.catch { [weak self] _ in
-            self?.transactionsTracker.fetchingState = .failed
-        }
-    }
+             if !transactions.isEmpty {
+                 let timeout = DispatchTime.now() + .milliseconds(300)
+                 DispatchQueue.main.asyncAfter(deadline: timeout) { [weak self] in
+                     self?.fetchOlderTransactions(for: address)
+                 }
+             } else {
+                 self?.transactionsTracker.fetchingState = .done
+             }
+         }.catch { [weak self] _ in
+             self?.transactionsTracker.fetchingState = .failed
+         }
+     }
 
     func stop() {
         timer?.invalidate()

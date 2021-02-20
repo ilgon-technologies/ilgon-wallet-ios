@@ -93,11 +93,13 @@ class ConfigureTransactionViewController: UIViewController {
         tableView.reloadData()
     }
 
+    
+    
     func configure(withEstimatedGasPrice value: BigInt, configurator: TransactionConfigurator) {
         var updatedViewModel = viewModel
         var configuration = makeConfigureSuitableForSaving(from: updatedViewModel.configurationToEdit.configuration)
         guard configuration.gasPrice != value else { return }
-        configuration.setEstimated(gasPrice: value)
+        //configuration.setEstimated(gasPrice: value)
         updatedViewModel.configurationToEdit = EditedTransactionConfiguration(configuration: configuration)
         updatedViewModel.configurations = configurator.configurations
         viewModel = updatedViewModel
@@ -337,20 +339,20 @@ class ConfigureTransactionViewController: UIViewController {
 
             let configuration = makeConfigureSuitableForSaving(from: viewModel.configurationToEdit.configuration)
             delegate.didSaved(customConfiguration: configuration, in: self)
-        case .standard, .slow, .fast, .rapid:
+        case .standard://, .slow, .fast, .rapid:
             delegate.didSavedToUseDefaultConfigurationType(viewModel.selectedConfigurationType, in: self)
         }
     }
 
     private func makeConfigureSuitableForSaving(from configuration: TransactionConfiguration) -> TransactionConfiguration {
-        let hasUserAdjustedGasPrice = lastSavedConfiguration.hasUserAdjustedGasPrice || (lastSavedConfiguration.gasPrice != configuration.gasPrice)
+        //let hasUserAdjustedGasPrice = lastSavedConfiguration.hasUserAdjustedGasPrice || (lastSavedConfiguration.gasPrice != configuration.gasPrice)
         let hasUserAdjustedGasLimit = lastSavedConfiguration.hasUserAdjustedGasLimit || (lastSavedConfiguration.gasLimit != configuration.gasLimit)
         let newConfiguration = TransactionConfiguration(
                 gasPrice: configuration.gasPrice,
                 gasLimit: configuration.gasLimit,
                 data: configuration.data,
                 nonce: configuration.nonce,
-                hasUserAdjustedGasPrice: hasUserAdjustedGasPrice,
+                //hasUserAdjustedGasPrice: hasUserAdjustedGasPrice,
                 hasUserAdjustedGasLimit: hasUserAdjustedGasLimit
         )
         lastSavedConfiguration = newConfiguration
@@ -403,7 +405,7 @@ extension ConfigureTransactionViewController: UITableViewDataSource {
                 return cells.data
             }
         case .gasPrice:
-            cells.gasPrice.configure(viewModel: viewModel.gasPriceSliderViewModel)
+            //cells.gasPrice.configure(viewModel: viewModel.gasPriceSliderViewModel)
             cells.gasPrice.delegate = self
             cells.gasPrice.textField.inputAccessoryButtonType = .next
 
@@ -424,7 +426,7 @@ extension ConfigureTransactionViewController: SliderTableViewCellDelegate {
             viewModel.configurationToEdit.updateMaxGasPriceIfNeeded(value)
             viewModel.configurationToEdit.gasPriceRawValue = value
 
-            cells.gasPrice.configureSliderRange(viewModel: viewModel.gasPriceSliderViewModel)
+            //cells.gasPrice.configureSliderRange(viewModel: viewModel.gasPriceSliderViewModel)
         }
 
         recalculateTotalFeeForCustomGas()

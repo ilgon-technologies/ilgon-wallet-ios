@@ -10,11 +10,18 @@ import BigInt
 import MBProgressHUD
 
 protocol SendViewControllerDelegate: class, CanOpenURL {
-    func didPressConfirm(transaction: UnconfirmedTransaction, in viewController: SendViewController, amount: String)
+    func didPressConfirm(
+            transaction: UnconfirmedTransaction,
+            transactionType: TransactionType,
+            in viewController: SendViewController,
+            amount: String,
+            includeTxCost: Bool
+    )
     func lookup(contract: AlphaWallet.Address, in viewController: SendViewController, completion: @escaping (ContractData) -> Void)
     func openQRCode(in controller: SendViewController)
 }
 
+// swiftlint:disable type_body_length
 class SendViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
     private let scrollView = UIScrollView()
@@ -29,6 +36,7 @@ class SendViewController: UIViewController {
     private let account: AlphaWallet.Address
     private let ethPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
+    private var data = Data()
     private lazy var decimalFormatter: DecimalFormatter = {
         return DecimalFormatter()
     }()
@@ -51,6 +59,42 @@ class SendViewController: UIViewController {
     var transactionType: TransactionType {
         return viewModel.transactionType
     }
+    
+    private var initReady = false
+    private let enableDeductWithFee: Bool
+    
+    var deductTxFeeSwitch: UISwitch = {
+        let uiSwitch = UISwitch()
+        uiSwitch.translatesAutoresizingMaskIntoConstraints = false
+        return uiSwitch
+    }()
+    
+    var deductTxFeeLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .right
+        label.textColor = Colors.appText
+        label.text = "Deduct with TX fee"
+        return label
+    }()
+    
+    var sendAllButton: Button = {
+               let button = Button(size: .normal, style: .borderless)
+               button.translatesAutoresizingMaskIntoConstraints = false
+               button.setTitle("Send All", for: .normal)
+               button.titleLabel?.font = DataEntry.Font.accessory
+               button.setTitleColor(DataEntry.Color.icon, for: .normal)
+               button.setBackgroundColor(Colors.appBackground, forState: .normal)
+               button.contentHorizontalAlignment = .right
+               button.addTarget(self, action: #selector(sendAllButtonPressed), for: .touchUpInside)
+
+               return button
+        }()
+
+        @objc func sendAllButtonPressed() {
+            deductTxFeeSwitch.isOn = true
+            amountTextField.ethCost = viewModel.availableLabelTextWithoutSymbol!
+        }
 
     let storage: TokensDataStore
 
@@ -69,7 +113,12 @@ class SendViewController: UIViewController {
         self.ethPrice = cryptoPrice
         self.assetDefinitionStore = assetDefinitionStore
         self.viewModel = .init(transactionType: transactionType, session: session, storage: storage)
-
+        switch transactionType {
+        case .nativeCryptocurrency:
+            enableDeductWithFee = true
+        default:
+            enableDeductWithFee = false
+        }
         super.init(nibName: nil, bundle: nil)
 
         configureBalanceViewModel()
@@ -103,17 +152,22 @@ class SendViewController: UIViewController {
         addressControlsStackView.setContentCompressionResistancePriority(.required, for: .horizontal)
 
         addressControlsContainer.addSubview(addressControlsStackView)
-
-        let stackView = [
+        
+        var viewArray = [
             amountHeader,
             .spacer(height: ScreenChecker().isNarrowScreen ? 7 : 27),
             amountLabel,
             .spacer(height: ScreenChecker().isNarrowScreen ? 2 : 4),
             amountTextField,
             .spacer(height: 4),
-            amountTextField.statusLabelContainer,
-            amountTextField.alternativeAmountLabelContainer,
-            .spacer(height: ScreenChecker().isNarrowScreen ? 7: 14),
+            [amountTextField.statusLabelContainer, sendAllButton].asStackView(axis: .horizontal),
+            amountTextField.alternativeAmountLabelContainer
+        ]
+        if enableDeductWithFee {
+            viewArray.append(.spacer(height: 4))
+            viewArray.append([deductTxFeeLabel, deductTxFeeSwitch, .spacerWidth()].asStackView(axis: .horizontal, distribution: .fill, spacing: 10, contentHuggingPriority: UILayoutPriority(rawValue: 901)))
+        }
+        viewArray.append(contentsOf: [.spacer(height: ScreenChecker().isNarrowScreen ? 7: 14),
             recipientHeader,
             .spacer(height: ScreenChecker().isNarrowScreen ? 7: 16),
             [.spacerWidth(16), recipientAddressLabel].asStackView(axis: .horizontal),
@@ -122,8 +176,10 @@ class SendViewController: UIViewController {
             .spacer(height: 4), [
                 [.spacerWidth(16), targetAddressTextField.ensAddressView, targetAddressTextField.statusLabel].asStackView(axis: .horizontal, alignment: .leading),
                 addressControlsContainer
-            ].asStackView(axis: .horizontal),
-        ].asStackView(axis: .vertical)
+            ].asStackView(axis: .horizontal)
+        ])
+        
+        let stackView = viewArray.asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)
 
@@ -186,6 +242,9 @@ class SendViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         activateAmountView()
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.closeKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        self.view.addGestureRecognizer(tapGesture)
     }
 
     @objc func closeKeyboard() {
@@ -200,27 +259,38 @@ class SendViewController: UIViewController {
         }
 
         targetAddressTextField.configureOnce()
+        if !initReady {
+            view.backgroundColor = viewModel.backgroundColor
 
-        view.backgroundColor = viewModel.backgroundColor
+            amountHeader.configure(viewModel: amountViewModel)
+            recipientHeader.configure(viewModel: recipientViewModel)
 
-        amountHeader.configure(viewModel: amountViewModel)
-        recipientHeader.configure(viewModel: recipientViewModel)
+            recipientAddressLabel.text = viewModel.recipientsAddress
+            recipientAddressLabel.font = viewModel.recipientLabelFont
+            recipientAddressLabel.textColor = viewModel.recepientLabelTextColor
 
-        recipientAddressLabel.text = viewModel.recipientsAddress
-        recipientAddressLabel.font = viewModel.recipientLabelFont
-        recipientAddressLabel.textColor = viewModel.recepientLabelTextColor
+            amountLabel.font = viewModel.textFieldsLabelFont
+            amountLabel.textColor = viewModel.textFieldsLabelTextColor
+            amountTextField.isAlternativeAmountEnabled = false
+            amountTextField.selectCurrencyButton.isHidden = viewModel.currencyButtonHidden
+            amountTextField.selectCurrencyButton.expandIconHidden = viewModel.selectCurrencyButtonHidden
 
-        amountLabel.font = viewModel.textFieldsLabelFont
-        amountLabel.textColor = viewModel.textFieldsLabelTextColor
-        amountTextField.isAlternativeAmountEnabled = false
-        amountTextField.selectCurrencyButton.isHidden = viewModel.currencyButtonHidden
-        amountTextField.selectCurrencyButton.expandIconHidden = viewModel.selectCurrencyButtonHidden
+            amountTextField.statusLabel.text = viewModel.availableLabelText
+            amountTextField.availableTextHidden = viewModel.availableTextHidden
+            
+            buttonsBar.configure()
+            let nextButton = buttonsBar.buttons[0]
+            nextButton.setTitle(R.string.localizable.send(), for: .normal)
+            nextButton.addTarget(self, action: #selector(send), for: .touchUpInside)
 
-        amountTextField.statusLabel.text = viewModel.availableLabelText
-        amountTextField.availableTextHidden = viewModel.availableTextHidden
+            updateNavigationTitle()
+            
+            initReady = true
+        }
 
         switch transactionType {
         case .nativeCryptocurrency(_, let recipient, let amount):
+            currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { ethPrice.unsubscribe($0) }
             if let recipient = recipient {
                 targetAddressTextField.value = recipient.stringValue
             }
@@ -247,15 +317,13 @@ class SendViewController: UIViewController {
             amountTextField.cryptoToDollarRate = nil
         }
 
-        buttonsBar.configure()
-        let nextButton = buttonsBar.buttons[0]
-        nextButton.setTitle(R.string.localizable.send(), for: .normal)
-        nextButton.addTarget(self, action: #selector(send), for: .touchUpInside)
-
-        updateNavigationTitle()
     }
 
     private func updateNavigationTitle() {
+        if transactionType.symbol == "ETH" {
+            title = "\(R.string.localizable.send()) ILG"
+            return
+        }
         title = "\(R.string.localizable.send()) \(transactionType.symbol)"
     }
 
@@ -264,13 +332,15 @@ class SendViewController: UIViewController {
         targetAddressTextField.errorState = .none
         amountTextField.errorState = .none
         let checkIfGreaterThanZero: Bool
+        // allow users to input zero on native transactions as they may want to send custom data
         switch transactionType {
         case .nativeCryptocurrency, .dapp, .tokenScript, .claimPaidErc875MagicLink:
             checkIfGreaterThanZero = false
         case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken:
             checkIfGreaterThanZero = true
         }
-        guard let value = viewModel.validatedAmount(value: amountTextField.ethCost, checkIfGreaterThanZero: checkIfGreaterThanZero) else {
+        guard let value = viewModel.validatedAmount(value: amountTextField.ethCost,
+                                                    checkIfGreaterThanZero: checkIfGreaterThanZero) else {
             amountTextField.errorState = .error
             return
         }
@@ -285,7 +355,11 @@ class SendViewController: UIViewController {
                 contract: transactionType.contractForFungibleSend,
                 data: nil
         )
-        delegate?.didPressConfirm(transaction: transaction, in: self, amount: amountTextField.ethCost)
+        delegate?.didPressConfirm(transaction: transaction,
+                                  transactionType: transactionType,
+                                  in: self,
+                                  amount: amountTextField.ethCost,
+                                  includeTxCost: enableDeductWithFee ?  deductTxFeeSwitch.isOn : false)
     }
 
     func activateAmountView() {
@@ -320,9 +394,11 @@ class SendViewController: UIViewController {
         switch result {
         case .address(let recipient):
             guard let tokenObject = storage.token(forContract: viewModel.transactionType.contract) else { return }
-            let amountAsIntWithDecimals = EtherNumberFormatter.full.number(from: amountTextField.ethCost, decimals: tokenObject.decimals)
-            configureFor(contract: transactionType.contract, recipient: .address(recipient), amount: amountAsIntWithDecimals)
-            activateAmountView()
+            //let amountAsIntWithDecimals = EtherNumberFormatter.full.number(from: amountTextField.ethCost, decimals: tokenObject.decimals)
+            targetAddressTextField.value = recipient.eip55String
+            targetAddressTextField.errorState = .none
+            //configureFor(contract: transactionType.contract, recipient: .address(recipient), amount: amountAsIntWithDecimals), shouldConfigureBalance: false)
+            //activateAmountView()
         case .eip681(let protocolName, let address, let functionName, let params):
             checkAndFillEIP681Details(protocolName: protocolName, address: address, functionName: functionName, params: params)
         }
@@ -413,6 +489,7 @@ class SendViewController: UIViewController {
         configure(viewModel: .init(transactionType: transactionType, session: session, storage: storage), shouldConfigureBalance: shouldConfigureBalance)
     }
 }
+// swiftlint:enable type_body_length
 
 extension SendViewController: AmountTextFieldDelegate {
 
@@ -425,11 +502,16 @@ extension SendViewController: AmountTextFieldDelegate {
         textField.errorState = .none
         textField.statusLabel.text = viewModel.availableLabelText
         textField.availableTextHidden = viewModel.availableTextHidden
+        
+        let sendButton = buttonsBar.buttons[0]
 
-        guard viewModel.validatedAmount(value: textField.ethCost, checkIfGreaterThanZero: false) != nil else {
+        guard viewModel.validatedAmount(value: textField.ethCost,
+                                        checkIfGreaterThanZero: false) != nil else {
             textField.errorState = .error
+            sendButton.isEnabled = false
             return
         }
+        sendButton.isEnabled = true
     }
 
     func changeType(in textField: AmountTextField) {
@@ -450,7 +532,7 @@ extension SendViewController: AddressTextFieldDelegate {
     func didPaste(in textField: AddressTextField) {
         textField.errorState = .none
 
-        activateAmountView()
+        //activateAmountView()
     }
 
     func shouldReturn(in textField: AddressTextField) -> Bool {
@@ -458,6 +540,5 @@ extension SendViewController: AddressTextFieldDelegate {
         return true
     }
 
-    func didChange(to string: String, in textField: AddressTextField) {
-    }
+    func didChange(to string: String, in textField: AddressTextField) {}
 }

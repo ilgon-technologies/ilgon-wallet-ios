@@ -13,9 +13,10 @@ struct DefaultActivityViewModel {
     }
 
     let activity: Activity
+    let currencyRate: CurrencyRate?
 
     var contentsBackgroundColor: UIColor {
-        .white
+        Colors.appBackground //.white
     }
 
     var backgroundColor: UIColor {
@@ -37,7 +38,19 @@ struct DefaultActivityViewModel {
 
         let string: String
         switch activity.nativeViewType {
-        case .erc20Sent, .erc20Received, .nativeCryptoSent, .nativeCryptoReceived:
+        case .nativeCryptoSent, .nativeCryptoReceived:
+            if let value = cardAttributes["amount"]?.uintValue {
+                if let rate = currencyRate,
+                   rate.rates[0].price > 0,
+                   let estimate = rate.estimate(fee: EtherNumberFormatter.full.string (from: BigInt(value)), with: "ilg"){
+                    string = "\(stringFromFungibleAmount(sign: sign, amount: value)) (\(estimate))"
+                } else {
+                    string = stringFromFungibleAmount(sign: sign, amount: value)
+                }
+            } else {
+                string = ""
+            }
+        case .erc20Sent, .erc20Received:
             if let value = cardAttributes["amount"]?.uintValue {
                 string = stringFromFungibleAmount(sign: sign, amount: value)
             } else {

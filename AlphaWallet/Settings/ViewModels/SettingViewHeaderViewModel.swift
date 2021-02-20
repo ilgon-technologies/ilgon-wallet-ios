@@ -25,7 +25,7 @@ struct SettingViewHeaderViewModel {
     }
 
     var backgroundColor: UIColor {
-        return R.color.alabaster()!
+        return Colors.appBackground
     }
 
     var separatorColor: UIColor {

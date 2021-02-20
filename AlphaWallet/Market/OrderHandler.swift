@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import BigInt
-import WalletCore
+//import WalletCore
 
 public struct Order {
     var price: BigUInt

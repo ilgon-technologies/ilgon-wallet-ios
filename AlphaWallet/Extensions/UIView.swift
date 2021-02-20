@@ -7,7 +7,7 @@ extension UIView {
     static func tableFooterToRemoveEmptyCellSeparators() -> UIView {
       return .init()
     }
-
+    
     static var tokenSymbolBackgroundImageCache: [UIColor: UIImage] = .init()
     static func tokenSymbolBackgroundImage(backgroundColor: UIColor) -> UIImage {
         if let cachedValue = tokenSymbolBackgroundImageCache[backgroundColor] {

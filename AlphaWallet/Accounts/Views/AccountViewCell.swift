@@ -60,3 +60,4 @@ class AccountViewCell: UITableViewCell {
         blockieImageView.subscribable = viewModel.icon
     }
 }
+

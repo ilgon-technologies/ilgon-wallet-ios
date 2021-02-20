@@ -25,7 +25,7 @@ struct CreateInitialViewModel {
     }
 
     var imageViewImage: UIImage {
-        return R.image.launch_icon()!
+        return R.image.logo()!
     }
 
     var createButtonTitle: String {

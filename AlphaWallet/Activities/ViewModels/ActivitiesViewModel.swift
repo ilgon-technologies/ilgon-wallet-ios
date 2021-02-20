@@ -109,11 +109,12 @@ struct ActivitiesViewModel {
     }
 
     var backgroundColor: UIColor {
-        Colors.appWhite
+        Colors.appBackground
     }
 
     var headerBackgroundColor: UIColor {
-        GroupedTable.Color.background
+        R.color.alabaster()!
+        //original: GroupedTable.Color.background
     }
 
     var headerTitleTextColor: UIColor {
@@ -161,3 +162,4 @@ extension String {
         return !self.trimmed.isEmpty
     }
 }
+

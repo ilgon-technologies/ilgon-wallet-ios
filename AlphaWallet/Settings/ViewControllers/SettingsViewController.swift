@@ -10,6 +10,8 @@ protocol SettingsViewControllerDelegate: class, CanOpenURL {
     func settingsViewControllerBackupWalletSelected(in controller: SettingsViewController)
     func settingsViewControllerActiveNetworksSelected(in controller: SettingsViewController)
     func settingsViewControllerHelpSelected(in controller: SettingsViewController)
+    func settingsViewControllerChangeLanguageSelected(in controller: SettingsViewController)
+    func settingsViewControllerWalletConnectSelected(in controller: SettingsViewController)
 }
 
 class SettingsViewController: UIViewController {
@@ -111,6 +113,58 @@ class SettingsViewController: UIViewController {
             lock.stop()
         }
     }
+    
+    private func enableNotifications(completion: ((Bool) -> Void)? = .none) {
+        let notificationCenter = UNUserNotificationCenter.current()
+        notificationCenter.getNotificationSettings { [weak self] settings in
+            guard let strongSelf = self else { return }
+            switch settings.authorizationStatus {
+            case .notDetermined:
+                DispatchQueue.main.async {
+                    strongSelf.promptToEnableNotification(completion: completion)
+                }
+            case .authorized, .provisional:
+                completion?(true)
+            default:
+                completion?(false)
+            }
+        }
+    }
+    
+    private func promptToEnableNotification(completion: ((Bool) -> Void)? = .none) {
+        guard let navigationController = navigationController else { return }
+        navigationController.visibleViewController?.confirm(
+               title: R.string.localizable.transactionsReceivedEtherNotificationPrompt(RPCServer.main.cryptoCurrencyName),
+               message: nil,
+               okTitle: R.string.localizable.oK(),
+               okStyle: .default
+        ) { result in
+           switch result {
+           case .success:
+               //Give some time for the view controller to show up first. We don't have to be precise, so no need to complicate things with hooking up to the view controller's animation
+               DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+                   guard let strongSelf = self else { return }
+                   strongSelf.requestForAuthorization()
+               }
+           case .failure:
+               completion?(false)
+           }
+        }
+    }
+
+   private func requestForAuthorization(completion: ((Bool) -> Void)? = .none) {
+       let notificationCenter = UNUserNotificationCenter.current()
+       notificationCenter.requestAuthorization(options: [.badge, .alert, .sound]) { granted, error in
+           if granted {
+               completion?(true)
+               DispatchQueue.main.async {
+                   UIApplication.shared.registerForRemoteNotifications()
+               }
+           } else {
+               completion?(false)
+           }
+       }
+   }
 
     private func configureChangeWalletCellWithResolvedENS(_ row: SettingsWalletRow, cell: SettingTableViewCell) {
         cell.configure(viewModel: .init(
@@ -156,14 +210,34 @@ extension SettingsViewController: CanOpenURL {
 extension SettingsViewController: SwitchTableViewCellDelegate {
 
     func cell(_ cell: SwitchTableViewCell, switchStateChanged isOn: Bool) {
-        if isOn {
-            setPasscode { result in
-                cell.isOn = result
+        if cell.tag == PASSCODE_ROW_TAG {
+            if isOn {
+                setPasscode { result in
+                    cell.isOn = result
+                }
+            } else {
+                lock.deletePasscode()
             }
-        } else {
-            lock.deletePasscode()
+        } else if cell.tag == ALLOW_NOTI_ROW_TAG {
+            if Config.allowNotifications == isOn { return }
+            if isOn {
+                enableNotifications {
+                    [weak self] result in
+                    self?.setAllowNotificationsOnMainThread(on: result, cell: cell)
+                }
+            } else {
+                Config.setAllowNotifications(isOn)
+            }
         }
     }
+    
+    private func setAllowNotificationsOnMainThread(on: Bool, cell: SwitchTableViewCell) {
+        DispatchQueue.main.async {
+            Config.setAllowNotifications(on)
+            cell.setSwitchAnimated(on: on)
+        }
+    }
+    
 }
 
 extension SettingsViewController: UITableViewDataSource {
@@ -181,6 +255,16 @@ extension SettingsViewController: UITableViewDataSource {
         case .system(let rows):
             let row = rows[indexPath.row]
             switch row {
+            case .allowNotifications:
+                let cell: SwitchTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+                cell.configure(viewModel: .init(
+                    titleText: row.title,
+                    icon: row.icon,
+                    value: Config.allowNotifications)
+                )
+                cell.delegate = self
+                cell.tag = ALLOW_NOTI_ROW_TAG
+                return cell
             case .passcode:
                 let cell: SwitchTableViewCell = tableView.dequeueReusableCell(for: indexPath)
                 cell.configure(viewModel: .init(
@@ -189,9 +273,9 @@ extension SettingsViewController: UITableViewDataSource {
                     value: lock.isPasscodeSet)
                 )
                 cell.delegate = self
-
+                cell.tag = PASSCODE_ROW_TAG
                 return cell
-            case .notifications, .selectActiveNetworks, .advanced:
+            case .notifications, .selectActiveNetworks, .changeLanguage:
                 let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
                 cell.configure(viewModel: .init(settingsSystemRow: row))
 
@@ -214,6 +298,8 @@ extension SettingsViewController: UITableViewDataSource {
                 cell.accessoryView = walletSecurityLevel.flatMap { WalletSecurityLevelIndicator(level: $0) }
                 cell.accessoryType = .disclosureIndicator
             case .showMyWallet:
+                cell.configure(viewModel: .init(settingsWalletRow: row))
+            case .walletConnect:
                 cell.configure(viewModel: .init(settingsWalletRow: row))
             }
 
@@ -249,17 +335,23 @@ extension SettingsViewController: UITableViewDelegate {
                 delegate?.settingsViewControllerChangeWalletSelected(in: self)
             case .showMyWallet:
                 delegate?.settingsViewControllerMyWalletAddressSelected(in: self)
+            case .walletConnect:
+                delegate?.settingsViewControllerWalletConnectSelected(in: self)
             }
         case .system(let rows):
             switch rows[indexPath.row] {
-            case .advanced:
-                delegate?.settingsViewControllerAdvancedSettingsSelected(in: self)
+            //case .advanced:
+            //    delegate?.settingsViewControllerAdvancedSettingsSelected(in: self)
+            case .allowNotifications:
+                break
             case .notifications:
                 break
             case .passcode:
                 break
             case .selectActiveNetworks:
                 delegate?.settingsViewControllerActiveNetworksSelected(in: self)
+            case .changeLanguage:
+                delegate?.settingsViewControllerChangeLanguageSelected(in: self)
             }
         case .help:
             delegate?.settingsViewControllerHelpSelected(in: self)
@@ -270,3 +362,6 @@ extension SettingsViewController: UITableViewDelegate {
         }
     }
 }
+
+private let ALLOW_NOTI_ROW_TAG = 10
+private let PASSCODE_ROW_TAG = 11

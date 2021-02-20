@@ -16,4 +16,5 @@ struct EthereumSigner {
     public func signHashes(_ hashes: [Data], withPrivateKey key: Data) throws -> [Data] {
         return try hashes.map { try sign(hash: $0, withPrivateKey: key) }
     }
+    
 }

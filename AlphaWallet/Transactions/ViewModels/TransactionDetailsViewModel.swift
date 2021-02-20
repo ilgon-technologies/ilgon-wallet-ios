@@ -9,7 +9,7 @@ struct TransactionDetailsViewModel {
     private let transaction: Transaction
     private let chainState: ChainState
     private let fullFormatter = EtherNumberFormatter.full
-    private let currencyRate: CurrencyRate?
+    var currencyRate: CurrencyRate?
 
     private var server: RPCServer {
         return transaction.server
@@ -18,12 +18,12 @@ struct TransactionDetailsViewModel {
     init(
         transaction: Transaction,
         chainState: ChainState,
-        currentWallet: Wallet,
-        currencyRate: CurrencyRate?
+        currentWallet: Wallet
+        //currencyRate: CurrencyRate?
     ) {
         self.transaction = transaction
         self.chainState = chainState
-        self.currencyRate = currencyRate
+        self.currencyRate = nil
         self.transactionViewModel = TransactionViewModel(
             transaction: transaction,
             chainState: chainState,
@@ -149,7 +149,17 @@ struct TransactionDetailsViewModel {
     }
 
     var amountAttributedString: NSAttributedString {
-        return transactionViewModel.fullAmountAttributedString
+        let firstPart = transactionViewModel.fullAmountAttributedString
+        if let currencyRate = currencyRate,
+           !transaction.isERC20Interaction,
+           currencyRate.rates[0].price > 0,
+           let val = BigInt(transaction.value),
+           let estimate = currencyRate.estimate(fee: fullFormatter.string(from: val), with: "ilg") {
+            let secondPart = NSAttributedString(string: " (\(estimate))")
+            return firstPart + secondPart
+        } else {
+            return firstPart
+        }
     }
 
     var shareItem: URL? {

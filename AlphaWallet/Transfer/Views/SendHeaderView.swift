@@ -57,8 +57,8 @@ class SendHeaderView: UIView {
         let tap = UITapGestureRecognizer(target: self, action: #selector(showContractWebPage))
         tokenIconImageView.addGestureRecognizer(tap)
 
-        let tap1 = UITapGestureRecognizer(target: self, action: #selector(showHideMarketSelected))
-        valueLabel.addGestureRecognizer(tap1)
+        //let tap1 = UITapGestureRecognizer(target: self, action: #selector(showHideMarketSelected))
+        //valueLabel.addGestureRecognizer(tap1)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -70,7 +70,11 @@ class SendHeaderView: UIView {
 
         tokenIconImageView.subscribable = viewModel.iconImage
         titleLabel.attributedText = viewModel.titleAttributedString
-        valueLabel.attributedText = viewModel.valueAttributedString
+        if !viewModel.showCurrency {
+            valueLabel.isHidden = true
+        } else {
+            valueLabel.attributedText = viewModel.valueAttributedString
+        }
         blockChainTagLabel.configure(viewModel: viewModel.blockChainTagViewModel)
     }
 

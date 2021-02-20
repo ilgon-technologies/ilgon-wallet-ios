@@ -23,15 +23,15 @@ class TokensViewModel {
     }()
 
     var headerBackgroundColor: UIColor {
-        return .white
+        return Colors.appBackground
     }
-
+    
     var walletDefaultTitle: String {
         return R.string.localizable.walletTokensTabbarItemTitle()
     }
-
+    
     var backgroundColor: UIColor {
-        return Colors.appWhite
+        return Colors.appBackground
     }
 
     var shouldShowBackupPromptViewHolder: Bool {
@@ -77,7 +77,7 @@ class TokensViewModel {
         }
         return true
     }
-    
+
     init(filterTokensCoordinator: FilterTokensCoordinator, tokens: [TokenObject], tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]]) {
         self.filterTokensCoordinator = filterTokensCoordinator
         self.tokens = tokens
@@ -126,7 +126,7 @@ fileprivate extension WalletFilter {
     static var orderedTabs: [WalletFilter] {
         return [
             .all,
-            .currencyOnly,
+            //.currencyOnly,
             .assetsOnly,
             .collectiblesOnly,
         ]

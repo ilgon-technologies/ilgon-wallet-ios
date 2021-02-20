@@ -28,7 +28,6 @@ struct NoTokenError: LocalizedError {
 protocol SingleChainTokenCoordinatorDelegate: class, CanOpenURL {
     func tokensDidChange(inCoordinator coordinator: SingleChainTokenCoordinator)
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: SingleChainTokenCoordinator)
-    func shouldOpen(url: URL, onServer server: RPCServer, forTransactionType transactionType: TransactionType, in coordinator: SingleChainTokenCoordinator)
     func didPress(for type: PaymentFlow, inCoordinator coordinator: SingleChainTokenCoordinator)
     func didTap(transaction: Transaction, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: SingleChainTokenCoordinator)
@@ -527,7 +526,7 @@ class SingleChainTokenCoordinator: Coordinator {
         }
     }
 
-    private func showTokenInstanceActionView(forAction action: TokenInstanceAction, fungibleTokenObject tokenObject: TokenObject, navigationController: UINavigationController) {
+private func showTokenInstanceActionView(forAction action: TokenInstanceAction, fungibleTokenObject tokenObject: TokenObject, navigationController: UINavigationController) {
         //TODO id 1 for fungibles. Might come back to bite us?
         let hardcodedTokenIdForFungibles = BigUInt(1)
         let xmlHandler = XMLHandler(token: tokenObject, assetDefinitionStore: assetDefinitionStore)
@@ -562,10 +561,6 @@ extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
         delegate?.didTapSwap(forTransactionType: transactionType, service: service, in: self)
     }
 
-    func shouldOpen(url: URL, onServer server: RPCServer, forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController) {
-        delegate?.shouldOpen(url: url, onServer: server, forTransactionType: transactionType, in: self)
-    }
-
     func didTapSend(forTransactionType transactionType: TransactionType, inViewController viewController: TokenViewController) {
         delegate?.didPress(for: .send(type: transactionType), inCoordinator: self)
     }
@@ -595,7 +590,7 @@ extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
         switch action.type {
         case .tokenScript:
             showTokenInstanceActionView(forAction: action, fungibleTokenObject: token, navigationController: navigationController)
-        case .erc20Send, .erc20Receive, .nftRedeem, .nftSell, .nonFungibleTransfer, .swap, .xDaiBridge:
+        case .erc20Send, .erc20Receive, .nftRedeem, .nftSell, .nonFungibleTransfer, .swap:
             //Couldn't have reached here
             break
         }

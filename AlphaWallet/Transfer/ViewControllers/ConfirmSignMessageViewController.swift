@@ -11,7 +11,7 @@ protocol ConfirmSignMessageViewControllerDelegate: class {
 //TODO make more reusable as an alert?
 class ConfirmSignMessageViewController: UIViewController {
     private let background = UIView()
-	private let header = TokensCardViewControllerTitleHeader()
+    private let header = TokensCardViewControllerTitleHeader()
     private let subtitleLabel = UILabel()
     private let detailsBackground = UIView()
     private let singleMessageLabel = UILabel()
@@ -60,7 +60,7 @@ class ConfirmSignMessageViewController: UIViewController {
         singleMessageScrollView.addSubview(singleMessageLabel)
 
         let stackView = [
-			header,
+            header,
             subtitleLabel,
             .spacer(height: 20),
             tableView,

@@ -8,7 +8,7 @@ class SettingsCoordinatorTests: XCTestCase {
         class Delegate: SettingsCoordinatorDelegate, CanOpenURL {
             var deleteDelegateMethodCalled = false
 
-            func didRestart(with account: Wallet, in coordinator: SettingsCoordinator, reason: RestartReason) {}
+            func didRestart(with account: Wallet, in coordinator: SettingsCoordinator) {}
             func didUpdateAccounts(in coordinator: SettingsCoordinator) {}
             func didCancel(in coordinator: SettingsCoordinator) {}
             func didPressShowWallet(in coordinator: SettingsCoordinator) {}

@@ -31,13 +31,14 @@ struct SettingsViewModel {
 
     init(account: Wallet) {
         self.account = account
-        let walletRows: [SettingsWalletRow] = account.allowBackup ? SettingsWalletRow.allCases : [.showMyWallet, .changeWallet]
+        let walletRows: [SettingsWalletRow] = account.allowBackup ? SettingsWalletRow.allCases : [.showMyWallet, .changeWallet, .walletConnect]
         sections = [
             .wallet(rows: walletRows),
-            .system(rows: [.passcode, .selectActiveNetworks, .advanced]),
-            .help,
-            .version(value: Bundle.main.fullVersion),
-            .tokenStandard(value: "\(TokenScript.supportedTokenScriptNamespaceVersion)")
+            .system(rows: [.passcode, .selectActiveNetworks, .allowNotifications, .changeLanguage])
+            //.system(rows: [.passcode, .selectActiveNetworks, .advanced]),
+            //.help,
+           // .version(value: Bundle.main.fullVersion),
+            //.tokenStandard(value: "\(TokenScript.supportedTokenScriptNamespaceVersion)")
         ]
     }
 
@@ -63,6 +64,7 @@ enum SettingsWalletRow: CaseIterable {
     case showMyWallet
     case changeWallet
     case backup
+    case walletConnect
 
     var title: String {
         switch self {
@@ -72,6 +74,8 @@ enum SettingsWalletRow: CaseIterable {
             return R.string.localizable.settingsChangeWalletTitle()
         case .backup:
             return R.string.localizable.settingsBackupWalletButtonTitle()
+        case .walletConnect:
+            return "WalletConnect"
         }
     }
 
@@ -83,6 +87,8 @@ enum SettingsWalletRow: CaseIterable {
             return R.image.changeWallet()!
         case .backup:
             return R.image.backupCircle()!
+        case .walletConnect:
+            return R.image.walletConnectIcon()!
         }
     }
 }
@@ -91,31 +97,39 @@ enum SettingsSystemRow: CaseIterable {
     case notifications
     case passcode
     case selectActiveNetworks
-    case advanced
+    case allowNotifications
+    //case advanced
+    case changeLanguage
 
     var title: String {
         switch self {
+        case .allowNotifications:
+            return "Allow Notifications" //TODO later: localize
         case .notifications:
             return R.string.localizable.settingsNotificationsTitle()
         case .passcode:
             return R.string.localizable.settingsPasscodeTitle()
         case .selectActiveNetworks:
             return R.string.localizable.settingsSelectActiveNetworksTitle()
-        case .advanced:
-            return R.string.localizable.advanced()
+        //case .advanced:
+        //    return R.string.localizable.advanced()
+        case .changeLanguage:
+            return R.string.localizable.settingsLanguageButtonTitle()
         }
     }
 
     var icon: UIImage {
         switch self {
-        case .notifications:
+        case .allowNotifications, .notifications:
             return R.image.notificationsCircle()!
         case .passcode:
             return R.image.biometrics()!
         case .selectActiveNetworks:
             return R.image.networksCircle()!
-        case .advanced:
-            return R.image.developerMode()!
+        //case .advanced:
+        //    return R.image.developerMode()!
+        case .changeLanguage:
+            return R.image.settings_language()!
         }
     }
 }

@@ -12,6 +12,7 @@ class TokenViewControllerTransactionCell: UITableViewCell {
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        backgroundColor = Colors.appBackground
 
         let row0StackView = [.spacerWidth(30), dateLabel, .spacerWidth(30)].asStackView(alignment: .center)
         let row1StackView = [.spacerWidth(30), typeImageView, .spacerWidth(7), typeLabel, amountLabel, .spacerWidth(10), accessoryImageView, .spacerWidth(30)].asStackView(alignment: .center)

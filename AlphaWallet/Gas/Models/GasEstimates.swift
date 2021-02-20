@@ -13,8 +13,8 @@ struct GasEstimates {
             switch configurationType {
             case .standard:
                 return standard
-            case .fast, .rapid, .slow:
-                return others[configurationType]
+            //case .fast, .rapid, .slow:
+            //    return others[configurationType]
             case .custom:
                 return nil
             }
@@ -24,8 +24,8 @@ struct GasEstimates {
             case .standard:
                 //Better crash here than elsewhere or worse: hiding it
                 standard = config!
-            case .fast, .rapid, .slow:
-                others[configurationType] = config
+            //case .fast, .rapid, .slow:
+            //    others[configurationType] = config
             case .custom:
                 //Should not reach here
                 break

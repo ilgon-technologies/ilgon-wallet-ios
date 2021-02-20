@@ -38,6 +38,19 @@ func applyStyle() {
     UISwitch.appearance().onTintColor = Colors.appTint
 }
 
+func applyVioletButtonStyle (button: UIButton) {
+    button.setBackgroundColor(Colors.ilgoinButtonPrimaryColor, forState: .normal)
+    button.setBackgroundColor(Colors.ilgoinButtonPrimaryColorPressed, forState: .highlighted)
+    button.setBackgroundColor(Colors.ilgoinButtonPrimaryInactiveColor, forState: .disabled)
+    button.setTitleColor(Colors.appWhite, for: .normal)
+}
+
+func applyWhiteButtonStyle (button: UIButton) {
+    button.setBackgroundColor(Colors.appWhite, forState: .normal)
+    button.borderColor = Colors.ilgoinButtonPrimaryColor
+    button.setTitleColor(Colors.ilgoinButtonPrimaryColor, for: .normal)
+}
+
 func applyStyle(viewController: UIViewController) {
 // See use of setBackButtonTitlePositionAdjustment(:for:) above
 //    viewController.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
@@ -52,7 +65,10 @@ struct Colors {
     static let darkGray = UIColor(hex: "2f2f2f")
     static let black = UIColor(hex: "313849")
     static let lightBlack = UIColor(hex: "313849")
-    static let appBackground = UIColor.white
+    static let appBackground = UIColor(hex: "F5F6FF") //original: UIColor.white
+    static let ilgoinButtonPrimaryColor = UIColor(hex: "5A65A0")
+    static let ilgoinButtonPrimaryColorPressed = UIColor(hex: "0F1BC7")
+    static let ilgoinButtonPrimaryInactiveColor = UIColor(hex: "ADB8E2")
     static let appTint = R.color.azure()!
     static let navigationTitleColor = UIColor.black
     static let navigationButtonTintColor = R.color.mine()!
@@ -125,7 +141,7 @@ enum GroupedTable {
 
     enum Color {
         static let title = UIColor(red: 76, green: 76, blue: 76)
-        static let background = R.color.alabaster()!
+        static let background = Colors.appBackground
         static let cellSeparator = UIColor(red: 233, green: 233, blue: 233)
     }
 }
@@ -152,7 +168,7 @@ enum DataEntry {
         static let secondary = Colors.appGrayLabel
         static let textFieldError = R.color.danger()!
         static let textFieldShadowWhileEditing = Colors.appTint
-        static let textFieldBackground = UIColor(hex: "FBFBFB")
+        static let textFieldBackground = UIColor.clear //original: UIColor(hex: "FBFBFB")
         static let placeholder = UIColor(hex: "919191")
         static let ensText = UIColor(red: 117, green: 185, blue: 67)
         static let searchTextFieldBackground = UIColor(red: 243, green: 244, blue: 245)

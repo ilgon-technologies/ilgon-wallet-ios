@@ -11,9 +11,10 @@ class EthTokenViewCell: UITableViewCell {
     private let valuePercentageChangePeriodLabel = UILabel()
     private let marketPriceLabel = UILabel()
     private let valueLabel = UILabel()
+    private let stakingBalanceLabel = UILabel()
     private let blockchainLabel = UILabel()
     private var viewsWithContent: [UIView] {
-        [titleLabel, valuePercentageChangeValueLabel, valuePercentageChangePeriodLabel, marketPriceLabel]
+        [titleLabel, stakingBalanceLabel, valuePercentageChangeValueLabel, valuePercentageChangePeriodLabel, marketPriceLabel]
     }
 
     private lazy var changeValueContainer: UIView = [marketPriceLabel, valuePercentageChangeValueLabel].asStackView(spacing: 5)
@@ -39,7 +40,8 @@ class EthTokenViewCell: UITableViewCell {
         let col0 = tokenIconImageView
         let col1 = [
             titleLabel,
-            [blockchainLabel, valueLabel, UIView.spacerWidth(flexible: true), changeValueContainer, blockChainTagLabel].asStackView(spacing: 5)
+            stakingBalanceLabel,
+            [blockchainLabel, valueLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 5)// , UIView.spacerWidth(flexible: true), changeValueContainer, blockChainTagLabel].asStackView(spacing: 5)
         ].asStackView(axis: .vertical, spacing: 2)
         let stackView = [col0, col1].asStackView(spacing: 12, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -73,6 +75,15 @@ class EthTokenViewCell: UITableViewCell {
         valuePercentageChangeValueLabel.textColor = viewModel.valuePercentageChangeColor
         valuePercentageChangeValueLabel.font = viewModel.textValueFont
         valuePercentageChangeValueLabel.text = viewModel.valuePercentageChangeValue
+        
+        if viewModel.showStakingBalance {
+            stakingBalanceLabel.isHidden = false
+            stakingBalanceLabel.textColor = viewModel.subtitleColor
+            stakingBalanceLabel.font = viewModel.subtitleFont
+            stakingBalanceLabel.text = "Staking balance: \(viewModel.stakingBalance)"
+        } else {
+            stakingBalanceLabel.isHidden = true
+        }
 
         marketPriceLabel.textColor = viewModel.textColor
         marketPriceLabel.font = viewModel.textValueFont
@@ -93,6 +104,7 @@ class EthTokenViewCell: UITableViewCell {
         tokenIconImageView.subscribable = viewModel.iconImage
 
         blockChainTagLabel.configure(viewModel: viewModel.blockChainTagViewModel)
-        changeValueContainer.isHidden = !viewModel.blockChainTagViewModel.blockChainNameLabelHidden
+        //changeValueContainer.isHidden = !viewModel.blockChainTagViewModel.blockChainNameLabelHidden
+        changeValueContainer.isHidden = true
     }
 }

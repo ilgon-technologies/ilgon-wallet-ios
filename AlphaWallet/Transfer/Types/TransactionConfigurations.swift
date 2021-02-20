@@ -37,8 +37,8 @@ struct TransactionConfigurations {
                 return standard
             case .custom:
                 return custom
-            case .fast, .rapid, .slow:
-                return others[configurationType]
+            //case .fast, .rapid, .slow:
+            //    return others[configurationType]
             }
         }
         set(config) {
@@ -49,8 +49,8 @@ struct TransactionConfigurations {
             case .custom:
                 //Better crash here than elsewhere or worse: hiding it
                 custom = config!
-            case .fast, .rapid, .slow:
-                others[configurationType] = config
+            //case .fast, .rapid, .slow:
+            //    others[configurationType] = config
             }
         }
     }

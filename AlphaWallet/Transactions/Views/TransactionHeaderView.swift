@@ -45,6 +45,10 @@ class TransactionHeaderView: UIView {
         blockchainLabel.backgroundColor = server.blockChainNameColor
         blockchainLabel.textColor = Screen.TokenCard.Color.blockChainName
         blockchainLabel.font = Screen.TokenCard.Font.blockChainName
-        blockchainLabel.text = " \(server.name)     "
+        if server.name == "Ethereum" {
+            blockchainLabel.text = " ILGON      "
+        } else {
+          blockchainLabel.text = " \(server.name)     "
+        }
     }
 }

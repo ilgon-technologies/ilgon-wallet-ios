@@ -3,7 +3,7 @@
 import Foundation
 //TODO remove all dependencies
 import TrustKeystore
-import WalletCore
+//import WalletCore
 
 ///Use an enum as a namespace until Swift has proper namespaces
 public enum AlphaWallet {}

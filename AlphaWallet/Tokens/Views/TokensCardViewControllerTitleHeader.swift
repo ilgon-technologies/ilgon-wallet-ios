@@ -43,7 +43,7 @@ class TokensCardViewControllerTitleHeader: UIView {
         if frame.size.width == 0 {
             frame = CGRect(x: 0, y: 0, width: 300, height: 90)
         }
-        backgroundColor = Colors.appWhite
+        backgroundColor = Colors.appBackground
 
         titleLabel.textColor = Colors.appText
         titleLabel.font = Fonts.regular(size: 28)

@@ -27,7 +27,7 @@ class AppCoordinator: NSObject, Coordinator {
     private var universalLinkCoordinator: UniversalLinkCoordinator? {
         return coordinators.first { $0 is UniversalLinkCoordinator } as? UniversalLinkCoordinator
     }
-
+    
     private lazy var urlSchemeCoordinator: UrlSchemeCoordinatorType = {
         let coordinator = UrlSchemeCoordinator()
         coordinator.delegate = self
@@ -70,15 +70,15 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     private func retryStart() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            let succeeded = self.startImpl()
-            if succeeded {
-                return
-            } else {
-                self.retryStart()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                let succeeded = self.startImpl()
+                if succeeded {
+                    return
+                } else {
+                    self.retryStart()
+                }
             }
         }
-    }
 
     //This function exist to handle what we think is a rare (but hard to reproduce) occurrence that NSUserDefaults are not accessible for a short while during startup. If that happens, we delay the "launch" and check again. If the app is killed by the iOS launch time watchdog, so be it. Better than to let the user create a wallet and wipe the list of wallets and lose access
     private func startImpl() -> Bool {
